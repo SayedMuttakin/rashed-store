@@ -1,0 +1,9 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bank_grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2196F3"/>
+      <stop offset="1" stop-color="#1976D2"/>
+    </linearGradient>
+  </defs>
+  <path d="M10 85H90V90H10V85ZM15 40H25V80H15V40ZM35 40H45V80H35V40ZM55 40H65V80H55V40ZM75 40H85V80H75V40ZM10 35L50 15L90 35V38H10V35Z" fill="url(#bank_grad)"/>
+</svg>
