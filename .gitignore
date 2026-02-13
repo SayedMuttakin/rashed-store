@@ -8,3 +8,5 @@ dist/
 frontend/node_modules/
 frontend/dist/
 backend/vendor/
+.vercel
+.env*.local

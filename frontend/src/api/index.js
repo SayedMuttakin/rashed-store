@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-    // Since we are hosting on Vercel, relative path might work if we use a proxy or specific setup.
-    // For now, let's assume the backend will be dev-accessible or we use a central config.
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    // Add /api to the base URL if it's not already there
+    baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 // Add a request interceptor to include the auth token
