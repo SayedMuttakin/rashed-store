@@ -14,7 +14,7 @@ router.get('/', protect, async (req, res) => {
         }
         res.json(due.items);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -39,7 +39,7 @@ router.post('/', protect, async (req, res) => {
         await due.save();
         res.status(201).json(due.items);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -61,7 +61,7 @@ router.put('/:id', protect, async (req, res) => {
         await due.save();
         res.json(due.items);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -77,7 +77,7 @@ router.delete('/:id', protect, async (req, res) => {
         await due.save();
         res.json(due.items);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 

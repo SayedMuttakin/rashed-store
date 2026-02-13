@@ -5,8 +5,22 @@ require('dotenv').config();
 
 const app = express();
 
-// Initial connection - but we will also ensure it's connected in routes/middleware
-connectDB().catch(err => console.error('Initial DB connection error:', err));
+// Middleware to ensure DB is connected for every request
+const ensureDbConnected = async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('DB Connection Middleware Error:', error);
+        res.status(500).json({
+            message: 'ডাটাবেস কানেকশন করা সম্ভব হচ্ছে না',
+            debug_error: error.message,
+            debug_stack: error.stack
+        });
+    }
+};
+
+app.use(ensureDbConnected);
 
 // Middleware
 const corsOptions = {

@@ -34,8 +34,7 @@ router.post('/register', async (req, res) => {
             res.status(400).json({ message: 'ভুল তথ্য দেওয়া হয়েছে' });
         }
     } catch (error) {
-        console.error('Registration Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -59,8 +58,7 @@ router.post('/login', async (req, res) => {
             res.status(401).json({ message: 'ভুল মোবাইল নম্বর অথবা পাসওয়ার্ড' });
         }
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -87,8 +85,7 @@ router.get('/profile', protect, async (req, res) => {
             res.status(404).json({ message: 'ইউজার পাওয়া যায়নি' });
         }
     } catch (error) {
-        console.error('Profile Fetch Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 

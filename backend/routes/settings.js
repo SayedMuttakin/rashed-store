@@ -15,13 +15,12 @@ router.get('/', async (req, res) => {
         }
         res.json(settings);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        next(err);
     }
 });
 
 // Update settings
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, async (req, res, next) => { // Added 'next' to the route handler
     const { headerLogoUrl, appName } = req.body;
 
     try {
@@ -36,8 +35,7 @@ router.post('/', protect, async (req, res) => {
         }
         res.json(settings);
     } catch (err) {
-        console.error('Settings Update Error:', err);
-        res.status(500).json({ message: 'Server Error', error: err.message });
+        next(err);
     }
 });
 
@@ -65,8 +63,7 @@ router.post('/cleanup', protect, async (req, res) => {
 
         res.json({ message: 'ডাটাবেস সফলভাবে ক্লিন করা হয়েছে!' });
     } catch (err) {
-        console.error('Cleanup Error:', err);
-        res.status(500).json({ message: 'ক্লিনআপ করার সময় সমস্যা হয়েছে', error: err.message });
+        next(err);
     }
 });
 

@@ -35,8 +35,7 @@ router.get('/summary', protect, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Summary Aggregation Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -53,7 +52,7 @@ router.get('/', protect, async (req, res) => {
 
         res.json(cash);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -91,7 +90,7 @@ router.post('/', protect, async (req, res) => {
         await cash.save();
         res.status(200).json(cash);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 

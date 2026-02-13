@@ -15,8 +15,7 @@ router.get('/', protect, async (req, res) => {
         const accounts = await Account.find({ userId: req.user._id, serviceType });
         res.json(accounts);
     } catch (error) {
-        console.error('Fetch Accounts Query Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -28,8 +27,7 @@ router.get('/:serviceType', protect, async (req, res) => {
         const accounts = await Account.find({ userId: req.user._id, serviceType: req.params.serviceType });
         res.json(accounts);
     } catch (error) {
-        console.error('Fetch Accounts Path Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -55,8 +53,7 @@ router.post('/', protect, async (req, res) => {
         const accounts = await Account.find({ userId: req.user._id, serviceType });
         res.status(201).json(accounts);
     } catch (error) {
-        console.error('Create Account Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -85,8 +82,7 @@ router.put('/:id', protect, async (req, res) => {
         const accounts = await Account.find({ userId: req.user._id, serviceType: account.serviceType });
         res.json(accounts);
     } catch (error) {
-        console.error('Update Account Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
@@ -104,8 +100,7 @@ router.delete('/:id', protect, async (req, res) => {
         const accounts = await Account.find({ userId: req.user._id, serviceType });
         res.json(accounts);
     } catch (error) {
-        console.error('Delete Account Error:', error);
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 });
 
