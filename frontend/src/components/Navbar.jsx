@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
+import API from '../api';
+import toast from 'react-hot-toast';
 
 const Navbar = ({ onLogout }) => {
     const [isDark, setIsDark] = useState(true);
