@@ -13,7 +13,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Rashed Store',
-        short_name: 'RS Store',
+        short_name: 'Rashed Store',
         description: 'আপনার বিশ্বস্ত ডিজিটাল হিসাবঘর',
         theme_color: '#0f172a',
         icons: [
