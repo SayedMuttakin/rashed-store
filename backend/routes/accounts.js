@@ -66,7 +66,16 @@ router.put('/:id', protect, async (req, res, next) => {
         const account = await Account.findOne({ _id: req.params.id, userId: req.user._id });
         if (!account) return res.status(404).json({ message: 'অ্যাকাউন্ট পাওয়া যায়নি' });
 
-        const diff = parseFloat(newBalance) - account.balance;
+        // Ensure values are valid numbers
+        const currentBalance = parseFloat(account.balance) || 0;
+        const updatedBalance = parseFloat(newBalance);
+
+        // Validate that newBalance is a valid number
+        if (isNaN(updatedBalance)) {
+            return res.status(400).json({ message: 'অবৈধ ব্যালেন্স মান' });
+        }
+
+        const diff = updatedBalance - currentBalance;
 
         if (diff !== 0) {
             account.transactions.push({
@@ -75,7 +84,7 @@ router.put('/:id', protect, async (req, res, next) => {
                 type: diff > 0 ? 'credit' : 'debit',
                 note: 'ব্যালেন্স আপডেট'
             });
-            account.balance = parseFloat(newBalance);
+            account.balance = updatedBalance;
             await account.save();
         }
 
