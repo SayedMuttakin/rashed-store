@@ -92,7 +92,7 @@ router.get('/profile', protect, async (req, res, next) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
-router.put('/profile', protect, async (req, res) => {
+router.put('/profile', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id);
 
@@ -136,10 +136,7 @@ router.put('/profile', protect, async (req, res) => {
             return res.status(400).json({ message: messages.join(', ') });
         }
 
-        res.status(500).json({
-            message: 'প্রোফাইল আপডেট করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।',
-            error: error.message
-        });
+        next(error);
     }
 });
 
