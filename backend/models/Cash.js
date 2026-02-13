@@ -22,4 +22,4 @@ const cashSchema = new mongoose.Schema({
     history: [cashHistorySchema]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Cash', cashSchema);
+module.exports = mongoose.models.Cash || mongoose.model('Cash', cashSchema);

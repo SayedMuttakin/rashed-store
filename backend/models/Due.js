@@ -15,4 +15,4 @@ const dueSchema = new mongoose.Schema({
     items: [dueItemSchema]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Due', dueSchema);
+module.exports = mongoose.models.Due || mongoose.model('Due', dueSchema);
