@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Settings = require('../models/Settings');
-const auth = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 // Get all settings
 router.get('/', async (req, res) => {
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 // Update settings
-router.post('/', auth, async (req, res) => {
+router.post('/', protect, async (req, res) => {
     const { headerLogoUrl, appName } = req.body;
 
     try {
