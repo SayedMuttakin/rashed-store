@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX } from 'react-icons/fi';
+import { useState } from 'react';
+import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
 
-const Navbar = () => {
+const Navbar = ({ onLogout }) => {
     const [isDark, setIsDark] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -23,18 +23,14 @@ const Navbar = () => {
         <>
             <div className="h-[70px] w-full" /> {/* Spacer for fixed navbar */}
             <nav
-                className="fixed top-0 left-0 right-0 w-full min-h-[70px] bg-gradient-to-r from-[#4a001a] to-[#1a0033] px-4 sm:pl-10 sm:pr-20 flex items-center transition-all duration-500 z-50 rounded-b-[15px] shadow-lg"
+                className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[var(--mobile-width)] min-h-[70px] bg-gradient-to-r from-[#4a001a] to-[#1a0033] px-4 flex items-center transition-all duration-500 z-50 rounded-b-[15px] shadow-lg"
                 style={{ paddingTop: 'env(safe-area-inset-top)' }}
             >
                 <div className="w-full flex items-center justify-between">
                     {/* Left: Avatar & Website Name */}
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full border border-white/20 p-0.5 overflow-hidden shadow-md">
-                            <img
-                                src="https://via.placeholder.com/150"
-                                alt="Logo"
-                                className="w-full h-full object-cover rounded-full"
-                            />
+                        <div className="w-9 h-9 rounded-full border border-white/20 overflow-hidden shadow-md flex items-center justify-center bg-gradient-to-br from-pink-500 to-purple-600">
+                            <span className="text-white font-bold text-sm">R</span>
                         </div>
                         <div className="flex items-center gap-0.5 cursor-pointer group">
                             <span className="text-white font-bold text-lg tracking-tight group-hover:text-pink-400 transition-colors">
@@ -96,10 +92,18 @@ const Navbar = () => {
                                 </motion.div>
                             ))}
                         </div>
-                        <div className="bg-white/5 p-3 border-t border-white/5 text-center">
-                            <span className="text-white/40 text-[11px] font-medium tracking-widest uppercase">
-                                Rashed Store Menu
-                            </span>
+                        <div className="bg-white/5 p-4 border-t border-white/5 flex flex-col gap-3">
+                            <button
+                                onClick={onLogout}
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all font-bold text-sm border border-red-500/20"
+                            >
+                                <FiLogOut size={16} /> লগআউট করুন
+                            </button>
+                            <div className="text-center">
+                                <span className="text-white/40 text-[11px] font-medium tracking-widest uppercase">
+                                    Rashed Store Menu
+                                </span>
+                            </div>
                         </div>
                     </motion.div>
                 )}

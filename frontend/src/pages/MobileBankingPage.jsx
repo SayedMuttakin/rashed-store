@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiArrowLeft } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiArrowLeft, FiLoader } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
+import API from '../api';
 
 const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
     // Theme Configuration based on serviceType
@@ -82,20 +84,9 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
     const theme = themes[serviceType] || themes.bkash;
 
     // Accounts state
-    const [accounts, setAccounts] = useState([
-        {
-            id: 1,
-            accountNumber: '01712345678',
-            balance: 15000,
-            transactions: []
-        },
-        {
-            id: 2,
-            accountNumber: '01987654321',
-            balance: 5000,
-            transactions: []
-        }
-    ]);
+    const [accounts, setAccounts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [showAddAccount, setShowAddAccount] = useState(false);
     const [showAddTransaction, setShowAddTransaction] = useState(null);
@@ -105,60 +96,100 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
     const [newAccountBalance, setNewAccountBalance] = useState('');
     const [transactionAmount, setTransactionAmount] = useState('');
 
-    // Calculate total balance
-    const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+    useEffect(() => {
+        fetchAccounts();
+    }, [serviceType]);
 
-    // Add new account
-    const handleAddAccount = () => {
-        if (!newAccountNumber || !newAccountBalance) return;
-
-        const newAccount = {
-            id: Date.now(),
-            accountNumber: newAccountNumber,
-            balance: parseFloat(newAccountBalance),
-            transactions: []
-        };
-
-        setAccounts([...accounts, newAccount]);
-        setNewAccountNumber('');
-        setNewAccountBalance('');
-        setShowAddAccount(false);
+    const fetchAccounts = async () => {
+        try {
+            setIsLoading(true);
+            const { data } = await API.get(`/accounts?service=${serviceType}`);
+            if (Array.isArray(data)) {
+                setAccounts(data);
+            } else {
+                console.error('Non-array data received for accounts:', data);
+                setAccounts([]);
+            }
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
+            toast.error('অ্যাকাউন্ট তথ্য লোড করতে সমস্যা হয়েছে।');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    // Add transaction logic using handleUpdateBalance helper
-    const handleUpdateBalance = (accountId) => {
-        const account = accounts.find(a => a.id === accountId);
-        if (!account) return;
+    // Calculate total balance
+    const totalBalance = Array.isArray(accounts)
+        ? accounts.reduce((sum, acc) => sum + (Number(acc.balance) || 0), 0)
+        : 0;
 
-        const newBalance = parseFloat(transactionAmount);
-        const diff = newBalance - account.balance;
+    if (!Array.isArray(accounts) && accounts !== undefined) {
+        console.error('Accounts is not an array:', accounts);
+    }
 
-        if (isNaN(diff) || diff === 0) return;
-
-        setAccounts(accounts.map(acc => {
-            if (acc.id === accountId) {
-                return {
-                    ...acc,
-                    balance: newBalance,
-                    transactions: [...acc.transactions, {
-                        id: Date.now(),
-                        date: new Date().toISOString().split('T')[0],
-                        amount: diff,
-                        type: diff > 0 ? 'credit' : 'debit'
-                    }]
-                };
+    // Add new account
+    const handleAddAccount = async () => {
+        if (!newAccountNumber || !newAccountBalance) return;
+        try {
+            setIsSubmitting(true);
+            const { data } = await API.post('/accounts', {
+                serviceType: serviceType, // Corrected from service to serviceType
+                accountNumber: newAccountNumber,
+                balance: parseFloat(newAccountBalance)
+            });
+            if (Array.isArray(data)) {
+                setAccounts(data);
             }
-            return acc;
-        }));
+            toast.success('অ্যাকাউন্ট সফলভাবে যোগ করা হয়েছে।');
+            setNewAccountNumber('');
+            setNewAccountBalance('');
+            setShowAddAccount(false);
+        } catch (error) {
+            console.error('Error adding account:', error);
+            toast.error('অ্যাকাউন্ট যোগ করতে সমস্যা হয়েছে।');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-        setShowAddTransaction(null);
-        setTransactionAmount('');
+    // Add transaction logic
+    const handleUpdateBalance = async (accountId) => {
+        const amount = parseFloat(transactionAmount);
+        if (isNaN(amount)) return;
+
+        try {
+            setIsSubmitting(true);
+            const { data } = await API.put(`/accounts/${accountId}`, { balance: amount });
+            if (Array.isArray(data)) {
+                setAccounts(data);
+            }
+            toast.success('ব্যালেন্স আপডেট করা হয়েছে।');
+            setShowAddTransaction(null);
+            setTransactionAmount('');
+        } catch (error) {
+            console.error('Error updating balance:', error);
+            toast.error('ব্যালেন্স আপডেট করতে সমস্যা হয়েছে।');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Delete account
-    const handleDeleteAccount = (accountId) => {
+    const handleDeleteAccount = async (accountId) => {
         if (window.confirm('এই অ্যাকাউন্টটি মুছে ফেলতে চান?')) {
-            setAccounts(accounts.filter(acc => acc.id !== accountId));
+            try {
+                setIsLoading(true);
+                const { data } = await API.delete(`/accounts/${accountId}`);
+                if (Array.isArray(data)) {
+                    setAccounts(data);
+                }
+                toast.success('অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -221,52 +252,66 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
 
                 {/* Accounts List */}
                 <div className="space-y-4">
-                    {accounts.map((account, index) => (
-                        <motion.div
-                            key={account.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white dark:bg-[#1f1f23] rounded-3xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden min-h-[200px]"
-                        >
-                            {/* Card Body */}
-                            <div className="p-6 sm:p-7">
-                                {/* Account Header */}
-                                <div className="flex justify-between items-end mb-6 border-b border-gray-100 dark:border-gray-800 pb-6">
-                                    <div className="text-left w-1/2 pl-2 sm:pl-4">
-                                        <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1.5">অ্যাকাউন্ট নম্বর</p>
-                                        <h3 className="text-gray-900 dark:text-white font-bold text-xl sm:text-2xl font-mono tracking-wide">
-                                            {account.accountNumber}
-                                        </h3>
-                                    </div>
-                                    <div className="text-right w-1/2">
-                                        <div className={`text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${theme.amountColor} leading-tight`}>
-                                            ৳ {account.balance.toLocaleString()}
+                    {isLoading ? (
+                        <div className="py-20 flex flex-col items-center justify-center gap-4">
+                            <FiLoader className={`${theme.iconColor} animate-spin`} size={40} />
+                            <p className="text-gray-400 font-medium">লোড হচ্ছে...</p>
+                        </div>
+                    ) : (
+                        <>
+                            {Array.isArray(accounts) && accounts.map((account, index) => (
+                                <motion.div
+                                    key={account._id || index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="bg-white dark:bg-[#1f1f23] rounded-3xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden min-h-[200px]"
+                                >
+                                    {/* Card Body */}
+                                    <div className="p-6 sm:p-7">
+                                        {/* Account Header */}
+                                        <div className="flex justify-between items-end mb-6 border-b border-gray-100 dark:border-gray-800 pb-6">
+                                            <div className="text-left w-1/2 pl-2 sm:pl-4">
+                                                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1.5">অ্যাকাউন্ট নম্বর</p>
+                                                <h3 className="text-gray-900 dark:text-white font-bold text-xl sm:text-2xl font-mono tracking-wide">
+                                                    {account.accountNumber}
+                                                </h3>
+                                            </div>
+                                            <div className="text-right w-1/2">
+                                                <div className={`text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${theme.amountColor} leading-tight`}>
+                                                    ৳ {account.balance.toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => {
+                                                    setShowAddTransaction(account._id);
+                                                    setTransactionAmount('');
+                                                }}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl ${theme.buttonBg} ${theme.buttonText} font-bold text-base ${theme.buttonHover} transition-colors shadow-sm active:scale-[0.98]`}
+                                            >
+                                                <FiEdit2 size={18} /> লেনদেন
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteAccount(account._id)}
+                                                className="flex-none w-16 flex items-center justify-center rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm active:scale-[0.95]"
+                                            >
+                                                <FiTrash2 size={20} />
+                                            </button>
                                         </div>
                                     </div>
+                                </motion.div>
+                            ))}
+                            {accounts.length === 0 && (
+                                <div className="py-12 text-center">
+                                    <p className="text-gray-400 italic font-medium">কোন অ্যাকাউন্ট পাওয়া যায়নি</p>
                                 </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => {
-                                            setShowAddTransaction(account.id);
-                                            setTransactionAmount('');
-                                        }}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl ${theme.buttonBg} ${theme.buttonText} font-bold text-base ${theme.buttonHover} transition-colors shadow-sm active:scale-[0.98]`}
-                                    >
-                                        <FiEdit2 size={18} /> লেনদেন
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteAccount(account.id)}
-                                        className="flex-none w-16 flex items-center justify-center rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm active:scale-[0.95]"
-                                    >
-                                        <FiTrash2 size={20} />
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -310,7 +355,13 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                                 </div>
                                 <div className="flex gap-4 pt-4">
                                     <button onClick={() => setShowAddAccount(false)} className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">বাতিল</button>
-                                    <button onClick={handleAddAccount} className={`flex-1 py-4 ${theme.actionBtn} text-white rounded-2xl font-bold transition-all transform active:scale-95`}>যোগ করুন</button>
+                                    <button
+                                        onClick={handleAddAccount}
+                                        disabled={isSubmitting || !newAccountNumber || !newAccountBalance}
+                                        className={`flex-1 py-4 ${theme.actionBtn} text-white rounded-2xl font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2`}
+                                    >
+                                        {isSubmitting ? <FiLoader className="animate-spin" /> : 'যোগ করুন'}
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>
@@ -336,7 +387,7 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                             <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-6 sm:mb-8 text-center tracking-tight">নতুন ব্যালেন্স আপডেট</h3>
 
                             {(() => {
-                                const account = accounts.find(a => a.id === showAddTransaction);
+                                const account = accounts.find(a => a._id === showAddTransaction);
                                 return (
                                     <div className="space-y-6">
                                         <div className="p-4 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-gray-800 text-center">
@@ -355,7 +406,7 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                                             />
                                         </div>
 
-                                        {transactionAmount && (
+                                        {transactionAmount && account && (
                                             <div className="text-center animate-fade-in">
                                                 <p className="text-xs text-gray-400 mb-1">পরিবর্তন (অটোমেটিক হিসাব)</p>
                                                 <p className={`text-lg font-bold ${parseFloat(transactionAmount) - account.balance > 0 ? 'text-green-500' : parseFloat(transactionAmount) - account.balance < 0 ? 'text-red-500' : 'text-gray-500'}`}>
@@ -368,11 +419,11 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                                         <div className="flex gap-4 pt-2">
                                             <button onClick={() => setShowAddTransaction(null)} className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">বাতিল</button>
                                             <button
-                                                onClick={() => handleUpdateBalance(account.id)}
-                                                disabled={!transactionAmount || parseFloat(transactionAmount) === account.balance}
-                                                className={`flex-1 py-4 ${theme.actionBtn} text-white rounded-2xl font-bold transition-all transform active:scale-95 disabled:opacity-50 disabled:scale-100`}
+                                                onClick={() => handleUpdateBalance(account?._id)}
+                                                disabled={!transactionAmount || parseFloat(transactionAmount) === account?.balance || isSubmitting}
+                                                className={`flex-1 py-4 ${theme.actionBtn} text-white rounded-2xl font-bold transition-all transform active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2`}
                                             >
-                                                আপডেট করুন
+                                                {isSubmitting ? <FiLoader className="animate-spin" /> : 'আপডেট করুন'}
                                             </button>
                                         </div>
                                     </div>

@@ -1,15 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CategoryCard from './components/CategoryCard';
 import MobileBankingPage from './pages/MobileBankingPage';
+import CashPage from './pages/CashPage';
+import DuePage from './pages/DuePage';
+import BankPage from './pages/BankPage';
+import SimCardPage from './pages/SimCardPage';
+import AuthPage from './pages/AuthPage';
 import { CATEGORIES } from './constants/categories';
 import { motion } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
+import API from './api';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('userInfo')) || null);
+  const [totalCash, setTotalCash] = useState(0);
   const categories = CATEGORIES;
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+      fetchTotalCash();
+    }
+  }, [isAuthenticated]);
+
+  const fetchTotalCash = async () => {
+    try {
+      // Fetch the aggregated summary (Cash + Accounts + Dues)
+      const { data } = await API.get('/cash-balance/summary');
+      setTotalCash(data.currentBalance || 0);
+    } catch (error) {
+      console.error('Error fetching total cash:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    setIsAuthenticated(false);
+    setUser(null);
+    setCurrentPage('home');
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
 
   const container = {
     hidden: { opacity: 0 },
@@ -26,7 +67,11 @@ function App() {
       'বিকাশ': 'bkash',
       'নগদ': 'nagad',
       'রকেট': 'rocket',
-      'উপায়': 'upay'
+      'উপায়': 'upay',
+      'ক্যাশ': 'cash',
+      'বকেয়া': 'due',
+      'ব্যাংক': 'bank',
+      'সিম কার্ড': 'sim'
     };
 
     if (serviceMap[category.label]) {
@@ -36,11 +81,19 @@ function App() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <AuthPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
-    <Layout>
+    <Layout
+      isAuthenticated={isAuthenticated}
+      onLogout={handleLogout}
+    >
+      <Toaster position="top-center" reverseOrder={false} />
       {currentPage === 'home' ? (
         <>
-          <Navbar />
+          <Navbar onLogout={handleLogout} />
           {/* Dedicated spacer to ensure gap is visible */}
           <div className="h-5 w-full" />
 
@@ -50,7 +103,7 @@ function App() {
               <div className="w-full bg-gradient-to-r from-[#4a001a] to-[#1a0033] rounded-[10px] p-6 shadow-lg border border-white/5 flex items-center justify-between">
                 <div className="flex flex-col flex-1 items-center">
                   <span className="text-4xl font-extrabold text-white flex items-baseline gap-1">
-                    <span className="text-xl">৳</span> ০
+                    <span className="text-xl">৳</span> {totalCash.toLocaleString()}
                   </span>
                 </div>
                 <button className="btn-gradient px-7 py-2.5 rounded-[2px] font-bold text-[13px] shadow-lg pointer-events-none">
@@ -83,10 +136,18 @@ function App() {
           </main>
         </>
       ) : (
-        <MobileBankingPage
-          serviceType={currentPage}
-          onBack={() => setCurrentPage('home')}
-        />
+        <>
+          {currentPage === 'cash' && <CashPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
+          {currentPage === 'due' && <DuePage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
+          {currentPage === 'bank' && <BankPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
+          {currentPage === 'sim' && <SimCardPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
+          {!['home', 'cash', 'due', 'bank', 'sim'].includes(currentPage) && (
+            <MobileBankingPage
+              serviceType={currentPage}
+              onBack={() => { setCurrentPage('home'); fetchTotalCash(); }}
+            />
+          )}
+        </>
       )}
       <Footer />
     </Layout>

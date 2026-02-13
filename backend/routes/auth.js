@@ -1,0 +1,72 @@
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+// @desc    Register a new user
+// @route   POST /api/auth/register
+// @access  Public
+router.post('/register', async (req, res) => {
+    const { name, phone, password } = req.body;
+
+    try {
+        const userExists = await User.findOne({ phone });
+
+        if (userExists) {
+            return res.status(400).json({ message: 'এই নম্বর দিয়ে ইতিমধ্যেই অ্যাকাউন্ট খোলা হয়েছে' });
+        }
+
+        const user = await User.create({
+            name,
+            phone,
+            password,
+        });
+
+        if (user) {
+            res.status(201).json({
+                _id: user._id,
+                name: user.name,
+                phone: user.phone,
+                token: generateToken(user._id),
+            });
+        } else {
+            res.status(400).json({ message: 'ভুল তথ্য দেওয়া হয়েছে' });
+        }
+    } catch (error) {
+        console.error('Registration Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Authenticate user & get token
+// @route   POST /api/auth/login
+// @access  Public
+router.post('/login', async (req, res) => {
+    const { phone, password } = req.body;
+
+    try {
+        const user = await User.findOne({ phone });
+
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                phone: user.phone,
+                token: generateToken(user._id),
+            });
+        } else {
+            res.status(401).json({ message: 'ভুল মোবাইল নম্বর অথবা পাসওয়ার্ড' });
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
+        expiresIn: '30d',
+    });
+};
+
+module.exports = router;
