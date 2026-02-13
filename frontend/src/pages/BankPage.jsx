@@ -94,7 +94,7 @@ const BankPage = ({ onBack }) => {
 
         try {
             setIsSubmitting(true);
-            const { data } = await API.put(`/accounts/${id}`, { balance: amount });
+            const { data } = await API.put(`/accounts/${id}`, { newBalance: amount });
             if (Array.isArray(data)) {
                 setAccounts(data);
             }

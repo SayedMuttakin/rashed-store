@@ -168,7 +168,7 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
 
         try {
             setIsSubmitting(true);
-            const { data } = await API.put(`/accounts/${accountId}`, { balance: amount });
+            const { data } = await API.put(`/accounts/${accountId}`, { newBalance: amount });
             if (Array.isArray(data)) {
                 setAccounts(data);
             }
