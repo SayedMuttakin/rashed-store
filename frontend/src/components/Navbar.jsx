@@ -96,7 +96,7 @@ const Navbar = ({ onLogout }) => {
                             <img
                                 src={settings.headerLogoUrl}
                                 alt="Logo"
-                                className={`w-full h-full object-contain transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
+                                className={`w-full h-full object-cover transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
                             />
                             {isUploading && (
                                 <div className="absolute inset-0 flex items-center justify-center">
