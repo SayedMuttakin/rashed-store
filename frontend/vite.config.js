@@ -18,17 +18,17 @@ export default defineConfig({
         theme_color: '#0f172a',
         icons: [
           {
-            src: '/app-logo/logo.png',
+            src: 'app-logo/logo.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/app-logo/logo.png',
+            src: 'app-logo/logo.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: '/app-logo/logo.png',
+            src: 'app-logo/logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

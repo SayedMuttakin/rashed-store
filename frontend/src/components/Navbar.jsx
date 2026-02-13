@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
