@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut, FiSettings, FiUser, FiPhone, FiLock, FiCheck } from 'react-icons/fi';
+import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut, FiSettings, FiUser, FiPhone, FiLock, FiCheck, FiTrash2 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
 import API from '../api';
@@ -10,6 +10,7 @@ const Navbar = ({ onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [settings, setSettings] = useState({ headerLogoUrl: '/app-logo/logo.png', appName: 'Rashed Store' });
     const [isUploading, setIsUploading] = useState(false);
+    const [isCleaning, setIsCleaning] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [profileForm, setProfileForm] = useState({
         name: '',
@@ -87,6 +88,21 @@ const Navbar = ({ onLogout }) => {
             setIsSettingsOpen(false);
         } catch (error) {
             toast.error(error.response?.data?.message || 'আপডেট করতে সমস্যা হয়েছে।');
+        }
+    };
+
+    const handleCleanup = async () => {
+        if (!window.confirm('আপনি কি নিশ্চিত যে সব ডাটা ক্লিন করতে চান? এটি আর ফিরিয়ে আনা যাবে না।')) return;
+
+        setIsCleaning(true);
+        try {
+            const { data } = await API.post('/settings/cleanup');
+            toast.success(data.message);
+            setIsSettingsOpen(false);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'ক্লিনআপ করতে সমস্যা হয়েছে।');
+        } finally {
+            setIsCleaning(false);
         }
     };
 
@@ -317,6 +333,25 @@ const Navbar = ({ onLogout }) => {
                                         সেভ করুন
                                     </button>
                                 </form>
+
+                                {/* Admin Only Cleanup Section */}
+                                <div className="mt-8 pt-6 border-t border-white/5">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="text-red-400 text-[10px] uppercase tracking-wider font-extrabold">Danger Zone</span>
+                                    </div>
+                                    <button
+                                        onClick={handleCleanup}
+                                        disabled={isCleaning}
+                                        className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-2xl py-4 font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        <FiTrash2 size={18} />
+                                        {isCleaning ? 'ডাটা ক্লিন হচ্ছে...' : 'সব হিসাব ক্লিয়ার করুন (Database Reset)'}
+                                    </button>
+                                    <p className="text-white/20 text-[9px] text-center mt-3 leading-relaxed">
+                                        সাবধান! এটি ক্লিক করলে ক্যাশ, বকেয়া এবং ব্যাংকের সব তথ্য চিরতরে মুছে যাবে।
+                                    </p>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>
