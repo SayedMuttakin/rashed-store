@@ -5,12 +5,12 @@ import toast from 'react-hot-toast';
 import API from '../api';
 
 const OPERATORS = [
-    { id: 'gp', name: 'Grameenphone', color: 'bg-[#007cc3]', logo: '/src/assets/sim/gp.png' },
-    { id: 'bl', name: 'Banglalink', color: 'bg-[#ff6600]', logo: '/src/assets/sim/bl.png' },
-    { id: 'robi', name: 'Robi', color: 'bg-[#e30613]', logo: '/src/assets/sim/robi.png' },
-    { id: 'airtel', name: 'Airtel', color: 'bg-[#ed1c24]', logo: '/src/assets/sim/airtel.png' },
-    { id: 'skitto', name: 'Skitto', color: 'bg-[#fff200]', textColor: 'text-black', logo: '/src/assets/sim/skitto.png' },
-    { id: 'teletalk', name: 'Teletalk', color: 'bg-[#3fb44a]', logo: '/src/assets/sim/teletalk.png' },
+    { id: 'gp', name: 'Grameenphone', color: 'bg-[#007cc3]', logo: '/sim/gp.png' },
+    { id: 'bl', name: 'Banglalink', color: 'bg-[#ff6600]', logo: '/sim/bl.png' },
+    { id: 'robi', name: 'Robi', color: 'bg-[#e30613]', logo: '/sim/robi.png' },
+    { id: 'airtel', name: 'Airtel', color: 'bg-[#ed1c24]', logo: '/sim/airtel.png' },
+    { id: 'skitto', name: 'Skitto', color: 'bg-[#fff200]', textColor: 'text-black', logo: '/sim/skitto.png' },
+    { id: 'teletalk', name: 'Teletalk', color: 'bg-[#3fb44a]', logo: '/sim/teletalk.png' },
     { id: 'recharge', name: 'Recharge Card', color: 'bg-purple-600', isCard: true }
 ];
 
