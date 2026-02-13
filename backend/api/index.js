@@ -5,8 +5,8 @@ require('dotenv').config();
 
 const app = express();
 
-// Connect to Database
-connectDB();
+// Initial connection - but we will also ensure it's connected in routes/middleware
+connectDB().catch(err => console.error('Initial DB connection error:', err));
 
 // Middleware
 const corsOptions = {
@@ -58,15 +58,16 @@ app.use((err, req, res, next) => {
     const statusCode = err.status || (res.statusCode === 200 ? 500 : res.statusCode);
     res.status(statusCode).json({
         message: err.message || 'সার্ভারে সমস্যা হয়েছে',
-        error: process.env.NODE_ENV === 'production' ? null : err.message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+        debug_error: err.message, // Temporarily show error message for debugging
+        debug_stack: err.stack,     // Temporarily show stack for debugging
     });
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
 
 module.exports = app;

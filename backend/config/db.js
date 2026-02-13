@@ -1,15 +1,38 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Use a global variable to cache the connection across serverless function invocations
+let cached = global.mongoose;
+
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI);
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-        console.log('Database connection successful');
-    } catch (error) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1);
+    if (cached.conn) {
+        return cached.conn;
     }
+
+    if (!cached.promise) {
+        const opts = {
+            bufferCommands: false,
+        };
+
+        cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
+            console.log('MongoDB Connected successfully');
+            return mongoose;
+        });
+    }
+
+    try {
+        cached.conn = await cached.promise;
+    } catch (e) {
+        cached.promise = null;
+        console.error('MongoDB Connection Error:', e.message);
+        throw e;
+    }
+
+    return cached.conn;
 };
 
 module.exports = connectDB;
