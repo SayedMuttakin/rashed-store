@@ -8,7 +8,7 @@ const { protect } = require('../middleware/authMiddleware');
 // @desc    Get aggregated financial summary (Global Total)
 // @route   GET /api/cash/summary
 // @access  Private
-router.get('/summary', protect, async (req, res) => {
+router.get('/summary', protect, async (req, res, next) => {
     try {
         // 1. Get Liquid Cash
         let cash = await Cash.findOne({ userId: req.user._id });
@@ -42,7 +42,7 @@ router.get('/summary', protect, async (req, res) => {
 // @desc    Get user's cash balance and history
 // @route   GET /api/cash
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, async (req, res, next) => {
     try {
         let cash = await Cash.findOne({ userId: req.user._id });
 
@@ -59,7 +59,7 @@ router.get('/', protect, async (req, res) => {
 // @desc    Update cash balance
 // @route   POST /api/cash
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, async (req, res, next) => {
     const { newBalance, date } = req.body;
 
     try {

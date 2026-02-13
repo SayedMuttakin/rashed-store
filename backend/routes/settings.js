@@ -7,7 +7,7 @@ const Due = require('../models/Due');
 const Account = require('../models/Account');
 
 // Get all settings
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     try {
         let settings = await Settings.findOne();
         if (!settings) {
@@ -42,7 +42,7 @@ router.post('/', protect, async (req, res, next) => { // Added 'next' to the rou
 // @desc    Clean financial data (Reset balances and history)
 // @route   POST /api/settings/cleanup
 // @access  Private (Admin)
-router.post('/cleanup', protect, async (req, res) => {
+router.post('/cleanup', protect, async (req, res, next) => {
     try {
         console.log('Cleaning financial data requested by admin:', req.user.phone);
 

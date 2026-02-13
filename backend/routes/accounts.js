@@ -6,7 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 // @desc    Get accounts (supports ?service= xxx query param)
 // @route   GET /api/accounts
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, async (req, res, next) => {
     try {
         const serviceType = req.query.service;
         if (!serviceType) {
@@ -22,7 +22,7 @@ router.get('/', protect, async (req, res) => {
 // @desc    Get accounts by service type (path param)
 // @route   GET /api/accounts/:serviceType
 // @access  Private
-router.get('/:serviceType', protect, async (req, res) => {
+router.get('/:serviceType', protect, async (req, res, next) => {
     try {
         const accounts = await Account.find({ userId: req.user._id, serviceType: req.params.serviceType });
         res.json(accounts);
@@ -34,7 +34,7 @@ router.get('/:serviceType', protect, async (req, res) => {
 // @desc    Create new account
 // @route   POST /api/accounts
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, async (req, res, next) => {
     const { serviceType, accountName, accountNumber, balance } = req.body;
     try {
         const account = await Account.create({
@@ -60,7 +60,7 @@ router.post('/', protect, async (req, res) => {
 // @desc    Update account balance
 // @route   PUT /api/accounts/:id
 // @access  Private
-router.put('/:id', protect, async (req, res) => {
+router.put('/:id', protect, async (req, res, next) => {
     const { newBalance, date } = req.body;
     try {
         const account = await Account.findOne({ _id: req.params.id, userId: req.user._id });
@@ -89,7 +89,7 @@ router.put('/:id', protect, async (req, res) => {
 // @desc    Delete account
 // @route   DELETE /api/accounts/:id
 // @access  Private
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, async (req, res, next) => {
     try {
         const account = await Account.findOne({ _id: req.params.id, userId: req.user._id });
         if (!account) return res.status(404).json({ message: 'অ্যাকাউন্ট পাওয়া যায়নি' });

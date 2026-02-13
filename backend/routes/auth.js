@@ -7,7 +7,7 @@ const { protect } = require('../middleware/authMiddleware');
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     const { name, phone, password } = req.body;
 
     try {
@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
 // @desc    Authenticate user & get token
 // @route   POST /api/auth/login
 // @access  Public
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     const { phone, password } = req.body;
 
     try {
@@ -71,7 +71,7 @@ const generateToken = (id) => {
 // @desc    Get user profile
 // @route   GET /api/auth/profile
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         if (user) {

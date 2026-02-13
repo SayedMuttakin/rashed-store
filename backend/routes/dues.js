@@ -6,7 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 // @desc    Get user's due list
 // @route   GET /api/dues
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, async (req, res, next) => {
     try {
         let due = await Due.findOne({ userId: req.user._id });
         if (!due) {
@@ -21,7 +21,7 @@ router.get('/', protect, async (req, res) => {
 // @desc    Add new due item
 // @route   POST /api/dues
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, async (req, res, next) => {
     const { name, amount } = req.body;
     try {
         let due = await Due.findOne({ userId: req.user._id });
@@ -46,7 +46,7 @@ router.post('/', protect, async (req, res) => {
 // @desc    Update due item amount
 // @route   PUT /api/dues/:id
 // @access  Private
-router.put('/:id', protect, async (req, res) => {
+router.put('/:id', protect, async (req, res, next) => {
     const { amount } = req.body;
     try {
         const due = await Due.findOne({ userId: req.user._id });
@@ -68,7 +68,7 @@ router.put('/:id', protect, async (req, res) => {
 // @desc    Delete due item
 // @route   DELETE /api/dues/:id
 // @access  Private
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, async (req, res, next) => {
     try {
         const due = await Due.findOne({ userId: req.user._id });
         if (!due) return res.status(404).json({ message: 'তথ্য পাওয়া যায়নি' });
