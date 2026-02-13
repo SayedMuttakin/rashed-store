@@ -65,10 +65,32 @@ router.post('/login', async (req, res) => {
 });
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'rashed_store_secret_key_2026', {
         expiresIn: '30d',
     });
 };
+
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+router.get('/profile', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        if (user) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                phone: user.phone,
+                isAdmin: user.isAdmin
+            });
+        } else {
+            res.status(404).json({ message: 'ইউজার পাওয়া যায়নি' });
+        }
+    } catch (error) {
+        console.error('Profile Fetch Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
