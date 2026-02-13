@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Settings = require('../models/Settings');
 const { protect } = require('../middleware/authMiddleware');
+const Cash = require('../models/Cash');
+const Due = require('../models/Due');
+const Account = require('../models/Account');
 
 // Get all settings
 router.get('/', async (req, res) => {
