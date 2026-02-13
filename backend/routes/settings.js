@@ -1,0 +1,41 @@
+const express = require('express');
+const router = express.Router();
+const Settings = require('../models/Settings');
+const auth = require('../middleware/authMiddleware');
+
+// Get all settings
+router.get('/', async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) {
+            settings = await Settings.create({});
+        }
+        res.json(settings);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Update settings
+router.post('/', auth, async (req, res) => {
+    const { headerLogoUrl, appName } = req.body;
+
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) {
+            settings = new Settings({ headerLogoUrl, appName });
+            await settings.save();
+        } else {
+            if (headerLogoUrl) settings.headerLogoUrl = headerLogoUrl;
+            if (appName) settings.appName = appName;
+            await settings.save();
+        }
+        res.json(settings);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+module.exports = router;

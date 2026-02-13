@@ -41,12 +41,14 @@ const authRoutes = require('../routes/auth');
 const cashRoutes = require('../routes/cash');
 const dueRoutes = require('../routes/dues');
 const accountRoutes = require('../routes/accounts');
+const settingsRoutes = require('../routes/settings');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cash', cashRoutes);
 app.use('/api/cash-balance', cashRoutes); // Home screen endpoint
 app.use('/api/dues', dueRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

@@ -6,6 +6,58 @@ import { CATEGORIES } from '../constants/categories';
 const Navbar = ({ onLogout }) => {
     const [isDark, setIsDark] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [settings, setSettings] = useState({ headerLogoUrl: '/app-logo/logo.png', appName: 'Rashed Store' });
+    const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        fetchSettings();
+    }, []);
+
+    const fetchSettings = async () => {
+        try {
+            const { data } = await API.get('/settings');
+            if (data) setSettings(data);
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+        }
+    };
+
+    const handleLogoClick = () => {
+        document.getElementById('logo-upload').click();
+    };
+
+    const handleLogoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            setIsUploading(true);
+            // Assuming we have a general image upload endpoint or using a helper
+            // For now, let's pretend we have an endpoint that returns the URL
+            // Or we convert it to base64 for simplicity in this demo if no storage is setup
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64String = reader.result;
+                try {
+                    const { data } = await API.post('/settings', { headerLogoUrl: base64String });
+                    setSettings(data);
+                    toast.success('লোগো আপডেট করা হয়েছে।');
+                } catch (err) {
+                    toast.error('আপডেট করতে সমস্যা হয়েছে।');
+                } finally {
+                    setIsUploading(false);
+                }
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error uploading logo:', error);
+            toast.error('আপলোড করতে সমস্যা হয়েছে।');
+            setIsUploading(false);
+        }
+    };
 
     const toggleTheme = () => {
         const newTheme = !isDark;
@@ -21,6 +73,13 @@ const Navbar = ({ onLogout }) => {
 
     return (
         <>
+            <input
+                type="file"
+                id="logo-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={handleLogoUpload}
+            />
             <div className="h-[70px] w-full" /> {/* Spacer for fixed navbar */}
             <nav
                 className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[var(--mobile-width)] min-h-[70px] bg-gradient-to-r from-[#4a001a] to-[#1a0033] px-4 flex items-center transition-all duration-500 z-50 rounded-b-[15px] shadow-lg"
@@ -29,12 +88,28 @@ const Navbar = ({ onLogout }) => {
                 <div className="w-full flex items-center justify-between">
                     {/* Left: Avatar & Website Name */}
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full border border-white/20 overflow-hidden shadow-md flex items-center justify-center bg-gradient-to-br from-pink-500 to-purple-600">
-                            <span className="text-white font-bold text-sm">R</span>
+                        <div
+                            className="w-10 h-10 rounded-full border border-white/20 overflow-hidden shadow-md flex items-center justify-center bg-white/5 cursor-pointer relative group"
+                            onClick={handleLogoClick}
+                            title="Click to change logo"
+                        >
+                            <img
+                                src={settings.headerLogoUrl}
+                                alt="Logo"
+                                className={`w-full h-full object-contain transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
+                            />
+                            {isUploading && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-[8px] text-white font-bold">Edit</span>
+                            </div>
                         </div>
                         <div className="flex items-center gap-0.5 cursor-pointer group">
                             <span className="text-white font-bold text-lg tracking-tight group-hover:text-pink-400 transition-colors">
-                                Rashed<span className="text-pink-500">Store</span>
+                                {settings.appName.split(' ')[0]}<span className="text-pink-500">{settings.appName.split(' ')[1] || ''}</span>
                             </span>
                             <FiChevronRight size={14} className="text-white/60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
