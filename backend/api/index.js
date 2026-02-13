@@ -10,8 +10,10 @@ connectDB();
 
 // Middleware
 app.use(cors({
-    origin: ['https://rashed-store-81kh.vercel.app', 'http://localhost:5173'],
-    credentials: true
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
