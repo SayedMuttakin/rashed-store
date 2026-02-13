@@ -54,9 +54,9 @@ const AuthPage = ({ onLoginSuccess }) => {
                     <motion.div
                         initial={{ scale: 0.5 }}
                         animate={{ scale: 1 }}
-                        className="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4"
+                        className="w-24 h-24 bg-white/5 backdrop-blur-sm rounded-3xl mx-auto flex items-center justify-center shadow-xl mb-4 overflow-hidden p-2 border border-white/10"
                     >
-                        <span className="text-3xl font-black text-white italic">RS</span>
+                        <img src="/app-logo/logo.png" alt="Logo" className="w-full h-full object-contain shadow-2xl" />
                     </motion.div>
                     <h1 className="text-2xl font-black text-white tracking-tight">রাশেদ স্টোর</h1>
                     <p className="text-indigo-200/60 text-sm mt-1">আপনার বিশ্বস্ত ডিজিটাল হিসাবঘর</p>
