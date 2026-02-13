@@ -101,7 +101,15 @@ router.put('/profile', protect, async (req, res) => {
 
         if (user) {
             user.name = req.body.name || user.name;
-            user.phone = req.body.phone || user.phone;
+
+            // Check if phone number is being changed and if it's already taken
+            if (req.body.phone && req.body.phone !== user.phone) {
+                const phoneExists = await User.findOne({ phone: req.body.phone });
+                if (phoneExists) {
+                    return res.status(400).json({ message: 'এই মোবাইল নম্বরটি ইতিমধ্যেই অন্য কোনো অ্যাকাউন্টে ব্যবহার করা হচ্ছে' });
+                }
+                user.phone = req.body.phone;
+            }
 
             if (req.body.password) {
                 user.password = req.body.password;
@@ -120,7 +128,21 @@ router.put('/profile', protect, async (req, res) => {
         }
     } catch (error) {
         console.error('Profile Update Error:', error);
-        res.status(500).json({ message: error.message });
+
+        // Handle Mongoose/MongoDB specific errors
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'এই মোবাইল নম্বরটি ইতিমধ্যেই ব্যবহার করা হচ্ছে' });
+        }
+
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ message: messages.join(', ') });
+        }
+
+        res.status(500).json({
+            message: 'প্রোফাইল আপডেট করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।',
+            error: error.message
+        });
     }
 });
 
