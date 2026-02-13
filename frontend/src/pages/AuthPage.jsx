@@ -158,7 +158,6 @@ const AuthPage = ({ onLoginSuccess }) => {
                         )}
                     </button>
                 </form>
-
                 <p className="text-center text-xs text-gray-400 mt-8 font-medium">
                     {isLogin ? 'আপনি কি নতুন?' : 'ইতিমধ্যেই অ্যাকাউন্ট আছে?'}
                     <button
@@ -168,6 +167,24 @@ const AuthPage = ({ onLoginSuccess }) => {
                         {isLogin ? 'রেজিস্ট্রেশন করুন' : 'লগইন করুন'}
                     </button>
                 </p>
+
+                {/* PWA Download Section */}
+                <div className="mt-8 pt-6 border-t border-white/5 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-3">মোবাইল অ্যাপ ব্যবহার করুন</p>
+                    <button
+                        onClick={() => {
+                            // PWA installation logic or generic instruction
+                            toast.info('অ্যাপটি ডাউনলোড করতে ব্রাউজারের "Add to Home Screen" অপশনটি ব্যবহার করুন।', {
+                                icon: '📲',
+                                duration: 5000
+                            });
+                        }}
+                        className="w-full bg-white/5 hover:bg-white/10 text-white/80 rounded-xl py-3 text-xs font-bold transition-all border border-white/5 flex items-center justify-center gap-2 group"
+                    >
+                        <FiArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                        <span>Download Store App</span>
+                    </button>
+                </div>
             </motion.div>
         </div>
     );
