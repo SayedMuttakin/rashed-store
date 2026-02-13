@@ -3,6 +3,7 @@ import { FiArrowLeft, FiPlus, FiBriefcase, FiEdit2, FiTrash2, FiSearch, FiCredit
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import API from '../api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const BankPage = ({ onBack }) => {
     const [accounts, setAccounts] = useState([]);
@@ -18,6 +19,14 @@ const BankPage = ({ onBack }) => {
     const [newAccNumber, setNewAccNumber] = useState('');
     const [newBalance, setNewBalance] = useState('');
     const [updateBalanceAmount, setUpdateBalanceAmount] = useState('');
+
+    // Confirm Modal state
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        title: '',
+        message: ''
+    });
 
     useEffect(() => {
         fetchAccounts();
@@ -101,20 +110,28 @@ const BankPage = ({ onBack }) => {
     };
 
     const handleDeleteAccount = async (id) => {
-        if (window.confirm('এই ব্যাংক অ্যাকাউন্টটি মুছে ফেলতে চান?')) {
-            try {
-                setIsLoading(true);
-                const { data } = await API.delete(`/accounts/${id}`);
-                if (Array.isArray(data)) {
-                    setAccounts(data);
-                }
-                toast.success('অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
-            } catch (error) {
-                console.error('Error deleting bank account:', error);
-                toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
-            } finally {
-                setIsLoading(false);
+        setConfirmModal({
+            isOpen: true,
+            id,
+            title: 'অ্যাকাউন্ট মুছুন',
+            message: 'আপনি কি নিশ্চিত যে এই ব্যাংক অ্যাকাউন্টটি মুছে ফেলতে চান?'
+        });
+    };
+
+    const confirmDelete = async () => {
+        const id = confirmModal.id;
+        try {
+            setIsLoading(true);
+            const { data } = await API.delete(`/accounts/${id}`);
+            if (Array.isArray(data)) {
+                setAccounts(data);
             }
+            toast.success('অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
+        } catch (error) {
+            console.error('Error deleting bank account:', error);
+            toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -356,6 +373,14 @@ const BankPage = ({ onBack }) => {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmDelete}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div>
     );
 };

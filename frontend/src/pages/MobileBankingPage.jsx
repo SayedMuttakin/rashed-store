@@ -3,6 +3,7 @@ import { FiPlus, FiEdit2, FiTrash2, FiArrowLeft, FiLoader } from 'react-icons/fi
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import API from '../api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
     // Theme Configuration based on serviceType
@@ -96,6 +97,14 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
     const [newAccountBalance, setNewAccountBalance] = useState('');
     const [transactionAmount, setTransactionAmount] = useState('');
 
+    // Confirm Modal state
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        title: '',
+        message: ''
+    });
+
     useEffect(() => {
         fetchAccounts();
     }, [serviceType]);
@@ -176,20 +185,28 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
 
     // Delete account
     const handleDeleteAccount = async (accountId) => {
-        if (window.confirm('এই অ্যাকাউন্টটি মুছে ফেলতে চান?')) {
-            try {
-                setIsLoading(true);
-                const { data } = await API.delete(`/accounts/${accountId}`);
-                if (Array.isArray(data)) {
-                    setAccounts(data);
-                }
-                toast.success('অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
-            } catch (error) {
-                console.error('Error deleting account:', error);
-                toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
-            } finally {
-                setIsLoading(false);
+        setConfirmModal({
+            isOpen: true,
+            id: accountId,
+            title: 'অ্যাকাউন্ট মুছুন',
+            message: `আপনি কি নিশ্চিত যে এই ${theme.textTitle} অ্যাকাউন্টটি মুছে ফেলতে চান?`
+        });
+    };
+
+    const confirmDelete = async () => {
+        const accountId = confirmModal.id;
+        try {
+            setIsLoading(true);
+            const { data } = await API.delete(`/accounts/${accountId}`);
+            if (Array.isArray(data)) {
+                setAccounts(data);
             }
+            toast.success('অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -433,6 +450,14 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmDelete}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiPlus, FiTrendingUp, FiTrendingDown, FiEdit2, FiTrash2, FiArrowLeft, FiClock } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmModal from '../components/ConfirmModal';
 
 const BkashPage = ({ onBack }) => {
     const [accounts, setAccounts] = useState([
@@ -40,6 +41,14 @@ const BkashPage = ({ onBack }) => {
     const [newAccountBalance, setNewAccountBalance] = useState('');
     const [transactionAmount, setTransactionAmount] = useState('');
     const [transactionType, setTransactionType] = useState('credit');
+
+    // Confirm Modal state
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        title: '',
+        message: ''
+    });
 
     // Calculate total balance
     const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
@@ -100,9 +109,16 @@ const BkashPage = ({ onBack }) => {
 
     // Delete account
     const handleDeleteAccount = (accountId) => {
-        if (window.confirm('এই অ্যাকাউন্টটি মুছে ফেলতে চান?')) {
-            setAccounts(accounts.filter(acc => acc.id !== accountId));
-        }
+        setConfirmModal({
+            isOpen: true,
+            id: accountId,
+            title: 'অ্যাকাউন্ট মুছুন',
+            message: 'আপনি কি নিশ্চিত যে এই বিকাশ অ্যাকাউন্টটি মুছে ফেলতে চান?'
+        });
+    };
+
+    const confirmDelete = () => {
+        setAccounts(accounts.filter(acc => acc.id !== confirmModal.id));
     };
 
     return (
@@ -367,6 +383,14 @@ const BkashPage = ({ onBack }) => {
                     border-radius: 10px;
                 }
             `}</style>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmDelete}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div >
     );
 };

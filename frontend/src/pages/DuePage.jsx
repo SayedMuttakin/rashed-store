@@ -3,6 +3,7 @@ import { FiArrowLeft, FiPlus, FiUser, FiEdit2, FiTrash2, FiSearch, FiDollarSign,
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import API from '../api';
+import ConfirmModal from '../components/ConfirmModal';
 
 const DuePage = ({ onBack }) => {
     const [dues, setDues] = useState([]);
@@ -17,6 +18,14 @@ const DuePage = ({ onBack }) => {
     const [newName, setNewName] = useState('');
     const [newAmount, setNewAmount] = useState('');
     const [updateAmount, setUpdateAmount] = useState('');
+
+    // Confirm Modal state
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        title: '',
+        message: ''
+    });
 
     useEffect(() => {
         fetchDues();
@@ -96,20 +105,28 @@ const DuePage = ({ onBack }) => {
     };
 
     const handleDeleteDue = async (id) => {
-        if (window.confirm('এই তথ্যটি মুছে ফেলতে চান?')) {
-            try {
-                setIsLoading(true);
-                const { data } = await API.delete(`/dues/${id}`);
-                if (Array.isArray(data)) {
-                    setDues(data);
-                }
-                toast.success('তথ্য মুছে ফেলা হয়েছে।');
-            } catch (error) {
-                console.error('Error deleting due:', error);
-                toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
-            } finally {
-                setIsLoading(false);
+        setConfirmModal({
+            isOpen: true,
+            id,
+            title: 'বকেয়া মুছুন',
+            message: 'আপনি কি নিশ্চিত যে এই তথ্যটি মুছে ফেলতে চান?'
+        });
+    };
+
+    const confirmDelete = async () => {
+        const id = confirmModal.id;
+        try {
+            setIsLoading(true);
+            const { data } = await API.delete(`/dues/${id}`);
+            if (Array.isArray(data)) {
+                setDues(data);
             }
+            toast.success('তথ্য মুছে ফেলা হয়েছে।');
+        } catch (error) {
+            console.error('Error deleting due:', error);
+            toast.error('মুছে ফেলতে সমস্যা হয়েছে।');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -343,6 +360,14 @@ const DuePage = ({ onBack }) => {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmDelete}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
         </div>
     );
 };

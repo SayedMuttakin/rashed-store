@@ -4,13 +4,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
 import API from '../api';
 import toast from 'react-hot-toast';
+import ConfirmModal from './ConfirmModal';
 
 const Navbar = ({ onLogout }) => {
     const [isDark, setIsDark] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [settings, setSettings] = useState({ headerLogoUrl: '/app-logo/logo.png', appName: 'Rashed Store' });
     const [isUploading, setIsUploading] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [isCleaning, setIsCleaning] = useState(false);
+
+    // Confirm Modal state
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: ''
+    });
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [profileForm, setProfileForm] = useState({
         name: '',
@@ -91,18 +100,26 @@ const Navbar = ({ onLogout }) => {
         }
     };
 
-    const handleCleanup = async () => {
-        if (!window.confirm('আপনি কি নিশ্চিত যে সব ডাটা ক্লিন করতে চান? এটি আর ফিরিয়ে আনা যাবে না।')) return;
+    const handleCleanup = () => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'ডেটাবেস ক্লিনিং',
+            message: 'আপনি কি নিশ্চিত যে আপনি সব আর্থিক ডেটা (ক্যাশ, ডিউ, অ্যাকাউন্ট হিস্ট্রি) মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা সম্ভব নয়।'
+        });
+    };
 
-        setIsCleaning(true);
+    const confirmCleanup = async () => {
         try {
+            setIsCleaning(true);
             const { data } = await API.post('/settings/cleanup');
-            toast.success(data.message);
-            setIsSettingsOpen(false);
+            toast.success('ডেটাবেস সফলভাবে ক্লিন করা হয়েছে।');
+            setIsSettingsOpen(false); // Assuming setShowSettingsModal was a typo for setIsSettingsOpen
         } catch (error) {
-            toast.error(error.response?.data?.message || 'ক্লিনআপ করতে সমস্যা হয়েছে।');
+            console.error('Cleanup error:', error);
+            toast.error('ডেটাবেস ক্লিন করতে সমস্যা হয়েছে।');
         } finally {
             setIsCleaning(false);
+            setConfirmModal({ ...confirmModal, isOpen: false }); // Close confirm modal after action
         }
     };
 
@@ -182,6 +199,14 @@ const Navbar = ({ onLogout }) => {
                     </div>
                 </div>
             </nav>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmCleanup}
+                title={confirmModal.title}
+                message={confirmModal.message}
+            />
 
             {/* Dropdown Menu */}
             <AnimatePresence>
