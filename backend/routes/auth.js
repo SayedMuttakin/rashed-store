@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { protect } = require('../middleware/authMiddleware');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -68,5 +69,37 @@ const generateToken = (id) => {
         expiresIn: '30d',
     });
 };
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+router.put('/profile', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user) {
+            user.name = req.body.name || user.name;
+            user.phone = req.body.phone || user.phone;
+
+            if (req.body.password) {
+                user.password = req.body.password;
+            }
+
+            const updatedUser = await user.save();
+
+            res.json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                phone: updatedUser.phone,
+                token: generateToken(updatedUser._id),
+            });
+        } else {
+            res.status(404).json({ message: 'ইউজার পাওয়া যায়নি' });
+        }
+    } catch (error) {
+        console.error('Profile Update Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut } from 'react-icons/fi';
+import { FiSearch, FiGrid, FiChevronRight, FiSun, FiMoon, FiX, FiLogOut, FiSettings, FiUser, FiPhone, FiLock, FiCheck } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORIES } from '../constants/categories';
 import API from '../api';
@@ -10,6 +10,23 @@ const Navbar = ({ onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [settings, setSettings] = useState({ headerLogoUrl: '/app-logo/logo.png', appName: 'Rashed Store' });
     const [isUploading, setIsUploading] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [profileForm, setProfileForm] = useState({
+        name: '',
+        phone: '',
+        password: ''
+    });
+
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo) {
+            setProfileForm({
+                name: userInfo.name || '',
+                phone: userInfo.phone || '',
+                password: ''
+            });
+        }
+    }, [isSettingsOpen]);
 
     useEffect(() => {
         fetchSettings();
@@ -58,6 +75,18 @@ const Navbar = ({ onLogout }) => {
             console.error('Error uploading logo:', error);
             toast.error('আপলোড করতে সমস্যা হয়েছে।');
             setIsUploading(false);
+        }
+    };
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await API.put('/auth/profile', profileForm);
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            toast.success('প্রোফাইল আপডেট হয়েছে।');
+            setIsSettingsOpen(false);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'আপডেট করতে সমস্যা হয়েছে।');
         }
     };
 
@@ -168,6 +197,23 @@ const Navbar = ({ onLogout }) => {
                                     </span>
                                 </motion.div>
                             ))}
+
+                            {/* Settings Option */}
+                            <motion.div
+                                whileHover={{ x: 5 }}
+                                className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer group transition-all"
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    setIsSettingsOpen(true);
+                                }}
+                            >
+                                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 text-indigo-400">
+                                    <FiSettings size={16} />
+                                </div>
+                                <span className="text-white font-medium text-sm group-hover:text-pink-400 transition-colors">
+                                    সেটিংস
+                                </span>
+                            </motion.div>
                         </div>
                         <div className="bg-white/5 p-4 border-t border-white/5 flex flex-col gap-3">
                             <button
@@ -182,6 +228,97 @@ const Navbar = ({ onLogout }) => {
                                 </span>
                             </div>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Settings Modal */}
+            <AnimatePresence>
+                {isSettingsOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="w-full max-w-[400px] bg-[#1a0033] border border-white/10 rounded-[30px] overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
+                                            <FiSettings size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-white font-bold text-lg">অ্যাকাউন্ট সেটিংস</h3>
+                                            <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Manage Profile</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsSettingsOpen(false)}
+                                        className="w-8 h-8 rounded-full !bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all flex items-center justify-center"
+                                    >
+                                        <FiX size={18} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-white/50 text-[11px] font-bold ml-1 uppercase tracking-wider">পুরো নাম</label>
+                                        <div className="relative group">
+                                            <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-indigo-400 transition-colors" />
+                                            <input
+                                                type="text"
+                                                value={profileForm.name}
+                                                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500/50 transition-all text-sm"
+                                                placeholder="Enter full name"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-white/50 text-[11px] font-bold ml-1 uppercase tracking-wider">মোবাইল নম্বর</label>
+                                        <div className="relative group">
+                                            <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-indigo-400 transition-colors" />
+                                            <input
+                                                type="tel"
+                                                value={profileForm.phone}
+                                                onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500/50 transition-all text-sm"
+                                                placeholder="Mobile number"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-white/50 text-[11px] font-bold ml-1 uppercase tracking-wider">নতুন পাসওয়ার্ড (ঐচ্ছিক)</label>
+                                        <div className="relative group">
+                                            <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-indigo-400 transition-colors" />
+                                            <input
+                                                type="password"
+                                                value={profileForm.password}
+                                                onChange={(e) => setProfileForm({ ...profileForm, password: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500/50 transition-all text-sm"
+                                                placeholder="••••••••"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl py-4 font-bold text-sm shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                        <FiCheck size={18} />
+                                        সেভ করুন
+                                    </button>
+                                </form>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
