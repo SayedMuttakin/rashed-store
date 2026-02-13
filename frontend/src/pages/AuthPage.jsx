@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiUser, FiPhone, FiLock, FiArrowRight, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -14,6 +14,23 @@ const AuthPage = ({ onLoginSuccess }) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            setDeferredPrompt(e);
+            console.log('beforeinstallprompt event fired');
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -172,17 +189,24 @@ const AuthPage = ({ onLoginSuccess }) => {
                 <div className="mt-8 pt-6 border-t border-white/5 text-center">
                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-3">মোবাইল অ্যাপ ব্যবহার করুন</p>
                     <button
-                        onClick={() => {
-                            // PWA installation logic or generic instruction
-                            toast('অ্যাপটি ডাউনলোড করতে ব্রাউজারের "Add to Home Screen" অপশনটি ব্যবহার করুন।', {
-                                icon: '📲',
-                                duration: 5000
-                            });
+                        onClick={async () => {
+                            if (deferredPrompt) {
+                                deferredPrompt.prompt();
+                                const { outcome } = await deferredPrompt.userChoice;
+                                console.log(`User response to the install prompt: ${outcome}`);
+                                setDeferredPrompt(null);
+                            } else {
+                                // Fallback for iOS or already installed
+                                toast('অ্যাপটি ইনস্টল করতে ব্রাউজারের "Add to Home Screen" অপশনটি ব্যবহার করুন।', {
+                                    icon: '📲',
+                                    duration: 6000
+                                });
+                            }
                         }}
                         className="w-full bg-white/5 hover:bg-white/10 text-white/80 rounded-xl py-3 text-xs font-bold transition-all border border-white/5 flex items-center justify-center gap-2 group"
                     >
                         <FiArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        <span>Download Store App</span>
+                        <span>{deferredPrompt ? 'Install Store App' : 'Download Store App'}</span>
                     </button>
                 </div>
             </motion.div>
