@@ -16,18 +16,30 @@ const protect = async (req, res, next) => {
             req.user = await User.findById(decoded.id).select('-password');
 
             if (!req.user) {
-                return res.status(401).json({ message: 'ইউজার পাওয়া যায়নি, দয়া করে আবার লগইন করুন' });
+                console.warn('Auth Middleware: User not found for ID:', decoded.id);
+                return res.status(401).json({ 
+                    message: 'ইউজার পাওয়া যায়নি, দয়া করে আবার লগইন করুন',
+                    debug_reason: 'user_not_found'
+                });
             }
 
             next();
         } catch (error) {
-            console.error('Auth Middleware Error:', error);
-            return res.status(401).json({ message: 'অথরাইজেশন ব্যর্থ হয়েছে, টোকেন সঠিক নয়' });
+            console.error('Auth Middleware Token Verification Error:', error.message);
+            return res.status(401).json({ 
+                message: 'অথরাইজেশন ব্যর্থ হয়েছে, টোকেন সঠিক নয়',
+                debug_reason: 'invalid_token',
+                error: error.message
+            });
         }
     }
 
     if (!token) {
-        return res.status(401).json({ message: 'কোন টোকেন পাওয়া যায়নি, লগইন করুন' });
+        console.warn('Auth Middleware: No token provided in headers');
+        return res.status(401).json({ 
+            message: 'কোন টোকেন পাওয়া যায়নি, লগইন করুন',
+            debug_reason: 'no_token_provided'
+        });
     }
 };
 

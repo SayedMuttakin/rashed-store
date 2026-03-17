@@ -31,11 +31,16 @@ function App() {
 
   const fetchTotalCash = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('fetchTotalCash called without token');
+        return;
+      }
       // Fetch the aggregated summary (Cash + Accounts + Dues)
       const { data } = await API.get('/cash-balance/summary');
       setTotalCash(data.currentBalance || 0);
     } catch (error) {
-      console.error('Error fetching total cash:', error);
+      console.error('Error fetching total cash:', error?.response?.data || error.message);
     }
   };
 
