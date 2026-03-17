@@ -105,13 +105,13 @@ function App() {
           <main className="content flex flex-col gap-6 px-2 pb-10">
             {/* Balance Card Section */}
             <section className="relative z-10 w-full px-1">
-              <div className="w-full bg-gradient-to-r from-[#4a001a] to-[#1a0033] rounded-[10px] p-6 shadow-lg border border-white/5 flex items-center justify-between">
+              <div className="w-full bg-gradient-to-r from-[#4a001a] to-[#1a0033] rounded-[12px] p-4 sm:p-6 shadow-xl border border-white/5 flex items-center justify-between gap-3">
                 <div className="flex flex-col flex-1 items-center">
-                  <span className="text-4xl font-extrabold text-white flex items-baseline gap-1">
-                    <span className="text-xl">৳</span> {totalCash.toLocaleString()}
+                  <span className="text-3xl sm:text-4xl font-extrabold text-white flex items-baseline gap-1">
+                    <span className="text-lg sm:text-xl text-emerald-400">৳</span> {totalCash.toLocaleString()}
                   </span>
                 </div>
-                <button className="btn-gradient px-7 py-2.5 rounded-[2px] font-bold text-[13px] shadow-lg pointer-events-none">
+                <button className="btn-gradient px-4 sm:px-7 py-2 sm:py-2.5 rounded-[4px] font-bold text-[11px] sm:text-[13px] shadow-lg pointer-events-none whitespace-nowrap uppercase tracking-tighter">
                   মোট ক্যাশ
                 </button>
               </div>

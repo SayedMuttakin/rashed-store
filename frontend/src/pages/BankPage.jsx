@@ -161,48 +161,49 @@ const BankPage = ({ onBack }) => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-br from-[#1e3a8a] to-[#1e1b4b] rounded-[24px] sm:rounded-3xl p-6 shadow-xl relative overflow-hidden text-white border border-white/5"
+                    className="bg-gradient-to-br from-[#1e3a8a] to-[#1e1b4b] rounded-[24px] sm:rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden text-white border border-white/5"
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500/20 rounded-full -ml-8 -mb-8 blur-xl"></div>
 
-                    <div className="relative z-10 text-center py-2">
-                        <p className="text-blue-200 text-sm font-medium mb-1 flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                    <div className="relative z-10 text-center py-1 sm:py-2">
+                        <p className="text-blue-200 text-[10px] sm:text-sm font-medium mb-1 flex items-center justify-center gap-2">
+                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-400 animate-pulse"></span>
                             মোট ব্যাংক ব্যালেন্স
                         </p>
-                        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight my-2">
-                            <span className="text-2xl sm:text-3xl opacity-80 mr-1">৳</span>
+                        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight my-1 sm:my-2">
+                            <span className="text-xl sm:text-3xl opacity-80 mr-1">৳</span>
                             {totalBalance.toLocaleString()}
                         </h2>
-                        <div className="mt-3 inline-block px-4 py-1.5 bg-white/10 rounded-full backdrop-blur-sm border border-white/10 text-xs font-semibold">
+                        <div className="mt-2 sm:mt-3 inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-white/10 rounded-full backdrop-blur-sm border border-white/10 text-[10px] sm:text-xs font-semibold">
                             {Array.isArray(accounts) ? accounts.length : 0} টি অ্যাকাউন্ট
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Search and Add Action */}
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                     <div className="relative flex-1">
-                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
                             placeholder="ব্যাংক বা অ্যাকাউন্ট খুঁজুন..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white dark:bg-[#1f1f23] border border-gray-100 dark:border-gray-800 focus:border-blue-500 outline-none text-sm text-gray-700 dark:text-gray-200 shadow-sm transition-all"
+                            className="w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white dark:bg-[#1f1f23] border border-gray-100 dark:border-gray-800 focus:border-blue-500 outline-none text-xs sm:text-sm text-gray-700 dark:text-gray-200 shadow-sm transition-all"
                         />
                     </div>
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="p-3.5 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center border border-blue-500/50"
+                        className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center border border-blue-500/50"
                     >
-                        <FiPlus size={24} />
+                        <FiPlus size={20} className="sm:hidden" />
+                        <FiPlus size={24} className="hidden sm:block" />
                     </button>
                 </div>
 
                 {/* Account List */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     {isLoading ? (
                         <div className="py-20 flex flex-col items-center justify-center gap-4">
                             <FiLoader className="text-blue-500 animate-spin" size={40} />
@@ -216,20 +217,20 @@ const BankPage = ({ onBack }) => {
                                     initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className="bg-white dark:bg-[#1f1f23] rounded-3xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden relative group"
+                                    className="bg-white dark:bg-[#1f1f23] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden relative group"
                                 >
                                     <div className="flex justify-between items-start relative z-10">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
-                                                <FiBriefcase size={24} />
+                                        <div className="flex items-center gap-2 sm:gap-3">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
+                                                <FiBriefcase size={20} />
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-gray-900 dark:text-white text-lg">{acc.accountName}</h4>
-                                                <p className="text-xs text-gray-400 dark:text-gray-500 font-mono tracking-wider">{acc.accountNumber}</p>
+                                                <h4 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">{acc.accountName}</h4>
+                                                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-mono tracking-wider">{acc.accountNumber}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-2xl font-black text-blue-600 dark:text-blue-500">৳ {acc.balance.toLocaleString()}</p>
+                                            <p className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-500">৳ {acc.balance.toLocaleString()}</p>
                                         </div>
                                     </div>
 

@@ -147,18 +147,18 @@ const SimCardPage = ({ onBack }) => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-br from-[#6b21a8] to-[#3b0764] rounded-[24px] sm:rounded-3xl p-6 shadow-xl relative overflow-hidden text-white"
+                    className="bg-gradient-to-br from-[#6b21a8] to-[#3b0764] rounded-[24px] sm:rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden text-white"
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-8 -mb-8 blur-xl"></div>
 
-                    <div className="relative z-10 text-center py-2">
-                        <p className="text-purple-200 text-sm font-medium mb-1 flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                    <div className="relative z-10 text-center py-1 sm:py-2">
+                        <p className="text-purple-200 text-[10px] sm:text-sm font-medium mb-1 flex items-center justify-center gap-2">
+                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-400 animate-pulse"></span>
                             মোট সিম ব্যালেন্স
                         </p>
-                        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight my-2">
-                            <span className="text-2xl sm:text-3xl opacity-80 mr-1">৳</span>
+                        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight my-1 sm:my-2">
+                            <span className="text-xl sm:text-3xl opacity-80 mr-1">৳</span>
                             {totalBalance.toLocaleString()}
                         </h2>
                     </div>
@@ -167,16 +167,16 @@ const SimCardPage = ({ onBack }) => {
                 {/* Add Button */}
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="w-full bg-white dark:bg-[#1f1f23] rounded-2xl p-4 flex items-center justify-center gap-3 border border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group shadow-sm active:scale-[0.98]"
+                    className="w-full bg-white dark:bg-[#1f1f23] rounded-2xl p-3 sm:p-4 flex items-center justify-center gap-2 sm:gap-3 border border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group shadow-sm active:scale-[0.98]"
                 >
-                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <FiPlus className="text-purple-600 dark:text-purple-400" size={20} />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <FiPlus className="text-purple-600 dark:text-purple-400" size={18} />
                     </div>
-                    <span className="text-gray-700 dark:text-gray-200 font-bold text-sm">নতুন সিম/কার্ড যোগ করুন</span>
+                    <span className="text-gray-700 dark:text-gray-200 font-bold text-xs sm:text-sm">নতুন সিম/কার্ড যোগ করুন</span>
                 </button>
 
                 {/* Sim List */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     {isLoading ? (
                         <div className="py-20 flex flex-col items-center justify-center gap-4">
                             <FiLoader className="text-purple-500 animate-spin" size={40} />
@@ -192,25 +192,25 @@ const SimCardPage = ({ onBack }) => {
                                         initial={{ opacity: 0, y: 15 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className="bg-white dark:bg-[#1f1f23] rounded-3xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm transition-all"
+                                        className="bg-white dark:bg-[#1f1f23] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-gray-100 dark:border-gray-800 shadow-sm transition-all"
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-3 text-left">
-                                                <div className={`w-12 h-12 rounded-2xl ${operator?.color || 'bg-gray-200'} flex items-center justify-center p-2`}>
+                                        <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                            <div className="flex items-center gap-2 sm:gap-3 text-left">
+                                                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${operator?.color || 'bg-gray-200'} flex items-center justify-center p-2`}>
                                                     {operator?.logo ? (
                                                         <img src={operator.logo} alt={operator.name} className="w-full h-full object-contain brightness-100" />
                                                     ) : (
-                                                        <FiCreditCard className="text-white" size={24} />
+                                                        <FiCreditCard className="text-white" size={20} />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-gray-900 dark:text-white text-base">{item.accountNumber}</h4>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{operator?.name || 'Unknown'}</p>
+                                                    <h4 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">{item.accountNumber}</h4>
+                                                    <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest">{operator?.name || 'Unknown'}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-xl font-black text-purple-600 dark:text-purple-400">৳ {item.balance.toLocaleString()}</p>
-                                                <p className="text-[9px] text-gray-400 flex items-center justify-end gap-0.5 mt-1 font-bold">
+                                                <p className="text-lg sm:text-xl font-black text-purple-600 dark:text-purple-400">৳ {item.balance.toLocaleString()}</p>
+                                                <p className="text-[8px] sm:text-[9px] text-gray-400 flex items-center justify-end gap-0.5 mt-0.5 sm:mt-1 font-bold">
                                                     <FiClock size={10} /> {new Date(item.updatedAt).toLocaleDateString()}
                                                 </p>
                                             </div>

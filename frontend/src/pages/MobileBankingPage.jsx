@@ -236,21 +236,21 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className={`bg-gradient-to-br ${theme.gradient} rounded-[24px] sm:rounded-3xl p-5 shadow-xl relative overflow-hidden text-white`}
+                    className={`bg-gradient-to-br ${theme.gradient} rounded-[24px] sm:rounded-3xl p-4 sm:p-5 shadow-xl relative overflow-hidden text-white`}
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-8 -mb-8 blur-xl"></div>
 
-                    <div className="relative z-10 text-center">
-                        <p className="text-white/90 text-sm font-medium mb-1 flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    <div className="relative z-10 text-center py-1">
+                        <p className="text-white/90 text-[10px] sm:text-sm font-bold uppercase tracking-widest mb-1 flex items-center justify-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
                             মোট ব্যালেন্স
                         </p>
-                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight my-1.5">
+                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
                             <span className="text-xl sm:text-2xl opacity-80 mr-1">৳</span>
                             {totalBalance.toLocaleString()}
                         </h2>
-                        <div className="mt-3 inline-block px-4 py-1.5 bg-white/20 rounded-full backdrop-blur-sm border border-white/10 text-xs font-semibold tracking-wide">
+                        <div className="inline-block px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/10 text-[10px] sm:text-xs font-semibold tracking-wide">
                             {accounts.length} টি অ্যাকাউন্ট একটিভ
                         </div>
                     </div>
@@ -259,12 +259,12 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                 {/* Add New Account Button */}
                 <button
                     onClick={() => setShowAddAccount(true)}
-                    className={`w-full bg-white dark:bg-[#1f1f23] rounded-2xl p-4 flex items-center justify-center gap-3 border border-dashed border-gray-300 dark:border-gray-700 ${theme.hoverBorder} ${theme.hoverBg} transition-all group shadow-sm active:scale-[0.98]`}
+                    className={`w-full bg-white dark:bg-[#1f1f23] rounded-2xl p-3.5 flex items-center justify-center gap-3 border border-dashed border-gray-300 dark:border-gray-700 ${theme.hoverBorder} ${theme.hoverBg} transition-all group shadow-sm active:scale-[0.98]`}
                 >
-                    <div className={`w-10 h-10 rounded-full ${theme.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                        <FiPlus className={theme.plusIcon} size={20} />
+                    <div className={`w-9 h-9 rounded-full ${theme.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                        <FiPlus className={theme.plusIcon} size={18} />
                     </div>
-                    <span className="text-gray-700 dark:text-gray-200 font-bold text-sm">নতুন অ্যাকাউন্ট যোগ করুন</span>
+                    <span className="text-gray-700 dark:text-gray-200 font-bold text-xs sm:text-sm">নতুন অ্যাকাউন্ট যোগ করুন</span>
                 </button>
 
                 {/* Accounts List */}
@@ -282,20 +282,20 @@ const MobileBankingPage = ({ onBack, serviceType = 'bkash' }) => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="bg-white dark:bg-[#1f1f23] rounded-3xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden min-h-[200px]"
+                                    className="bg-white dark:bg-[#1f1f23] rounded-3xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden"
                                 >
                                     {/* Card Body */}
-                                    <div className="p-6 sm:p-7">
+                                    <div className="p-5 sm:p-6">
                                         {/* Account Header */}
-                                        <div className="flex justify-between items-end mb-6 border-b border-gray-100 dark:border-gray-800 pb-6">
-                                            <div className="text-left w-1/2 pl-2 sm:pl-4">
-                                                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1.5">অ্যাকাউন্ট নম্বর</p>
-                                                <h3 className="text-gray-900 dark:text-white font-bold text-xl sm:text-2xl font-mono tracking-wide">
+                                        <div className="flex justify-between items-end mb-5 border-b border-gray-100 dark:border-gray-800 pb-5">
+                                            <div className="text-left w-1/2 pl-1 sm:pl-2">
+                                                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1">অ্যাকাউন্ট নম্বর</p>
+                                                <h3 className="text-gray-900 dark:text-white font-bold text-lg sm:text-xl font-mono tracking-tight">
                                                     {account.accountNumber}
                                                 </h3>
                                             </div>
                                             <div className="text-right w-1/2">
-                                                <div className={`text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${theme.amountColor} leading-tight`}>
+                                                <div className={`text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${theme.amountColor} leading-tight`}>
                                                     ৳ {account.balance.toLocaleString()}
                                                 </div>
                                             </div>

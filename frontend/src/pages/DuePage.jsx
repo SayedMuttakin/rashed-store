@@ -156,21 +156,21 @@ const DuePage = ({ onBack }) => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-br from-[#f59e0b] to-[#92400e] rounded-[24px] sm:rounded-3xl p-6 shadow-xl relative overflow-hidden text-white"
+                    className="bg-gradient-to-br from-[#f59e0b] to-[#92400e] rounded-[24px] sm:rounded-3xl p-5 sm:p-7 shadow-xl relative overflow-hidden text-white border border-white/10"
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-8 -mb-8 blur-xl"></div>
 
-                    <div className="relative z-10 text-center py-2">
-                        <p className="text-amber-100 text-sm font-medium mb-1 flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <div className="relative z-10 text-center py-1 sm:py-2">
+                        <p className="text-amber-100 text-[11px] sm:text-sm font-medium mb-1 flex items-center justify-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                             মোট বকেয়া পাওনা
                         </p>
-                        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight my-2">
-                            <span className="text-2xl sm:text-3xl opacity-80 mr-1">৳</span>
+                        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight my-1 sm:my-2">
+                            <span className="text-xl sm:text-3xl opacity-80 mr-1">৳</span>
                             {totalDue.toLocaleString()}
                         </h2>
-                        <div className="mt-3 inline-block px-4 py-1.5 bg-white/20 rounded-full backdrop-blur-sm border border-white/10 text-xs font-semibold">
+                        <div className="mt-2 sm:mt-3 inline-block px-4 py-1.5 bg-white/20 rounded-full backdrop-blur-sm border border-white/10 text-[10px] sm:text-xs font-semibold">
                             {Array.isArray(dues) ? dues.length : 0} জনের কাছে পাওনা
                         </div>
                     </div>
