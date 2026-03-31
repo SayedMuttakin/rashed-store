@@ -4,7 +4,8 @@ import {
     FiCreditCard,
     FiBriefcase,
     FiSmartphone,
-    FiMap
+    FiMap,
+    FiPlus
 } from 'react-icons/fi';
 
 export const CATEGORIES = [
@@ -16,4 +17,6 @@ export const CATEGORIES = [
     { id: 6, label: 'উপায়', image: '/images/upay.png', fallbackIcon: FiSmartphone, color: '#FFD600' },
     { id: 7, label: 'ব্যাংক', image: '/images/bank.svg', fallbackIcon: FiMap, color: '#2196F3' },
     { id: 8, label: 'সিম কার্ড', image: '/images/sim.svg', fallbackIcon: FiSmartphone, color: '#607D8B' },
+    { id: 9, label: 'জমা', image: '/images/deposit.png', fallbackIcon: FiPlus, color: '#009688' },
+    { id: 10, label: 'ভল্ট', image: null, fallbackIcon: FiBriefcase, color: '#9E9E9E' },
 ];

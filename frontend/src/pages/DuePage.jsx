@@ -214,7 +214,7 @@ const DuePage = ({ onBack }) => {
                             placeholder="নাম দিয়ে খুঁজুন..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white dark:bg-[#1f1f23] border border-gray-100 dark:border-gray-800 focus:border-amber-500 outline-none text-sm text-gray-700 dark:text-gray-200 shadow-sm transition-all"
+                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white dark:bg-[#1f1f23] border border-gray-100 dark:border-gray-800 focus:border-amber-500 outline-none text-sm text-gray-800 dark:text-white shadow-sm transition-all"
                         />
                     </div>
                     <button

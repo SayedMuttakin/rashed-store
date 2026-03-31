@@ -3,6 +3,7 @@ const router = express.Router();
 const Cash = require('../models/Cash');
 const Account = require('../models/Account');
 const Due = require('../models/Due');
+const Deposit = require('../models/Deposit');
 const { protect } = require('../middleware/authMiddleware');
 
 // @desc    Get aggregated financial summary (Global Total)
@@ -24,14 +25,21 @@ router.get('/summary', protect, async (req, res, next) => {
             ? dueDoc.items.reduce((sum, item) => sum + (item.amount || 0), 0)
             : 0;
 
-        const grandTotal = currentCash + totalAccountsBalance + totalDues;
+        // 4. Get Sum of all Deposits
+        const depositDoc = await Deposit.findOne({ userId: req.user._id });
+        const totalDeposits = depositDoc && Array.isArray(depositDoc.items)
+            ? depositDoc.items.reduce((sum, item) => sum + (item.amount || 0), 0)
+            : 0;
+
+        const grandTotal = currentCash + totalAccountsBalance + totalDues + totalDeposits;
 
         res.json({
             currentBalance: grandTotal,
             details: {
                 cash: currentCash,
                 accounts: totalAccountsBalance,
-                dues: totalDues
+                dues: totalDues,
+                deposits: totalDeposits
             }
         });
     } catch (error) {

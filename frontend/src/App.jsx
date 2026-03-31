@@ -8,6 +8,7 @@ import CashPage from './pages/CashPage';
 import DuePage from './pages/DuePage';
 import BankPage from './pages/BankPage';
 import SimCardPage from './pages/SimCardPage';
+import DepositPage from './pages/DepositPage';
 import AuthPage from './pages/AuthPage';
 import { CATEGORIES } from './constants/categories';
 import { motion } from 'framer-motion';
@@ -76,7 +77,8 @@ function App() {
       'ক্যাশ': 'cash',
       'বকেয়া': 'due',
       'ব্যাংক': 'bank',
-      'সিম কার্ড': 'sim'
+      'সিম কার্ড': 'sim',
+      'জমা': 'deposit'
     };
 
     if (serviceMap[category.label]) {
@@ -146,7 +148,8 @@ function App() {
           {currentPage === 'due' && <DuePage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
           {currentPage === 'bank' && <BankPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
           {currentPage === 'sim' && <SimCardPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
-          {!['home', 'cash', 'due', 'bank', 'sim'].includes(currentPage) && (
+          {currentPage === 'deposit' && <DepositPage onBack={() => { setCurrentPage('home'); fetchTotalCash(); }} />}
+          {!['home', 'cash', 'due', 'bank', 'sim', 'deposit'].includes(currentPage) && (
             <MobileBankingPage
               serviceType={currentPage}
               onBack={() => { setCurrentPage('home'); fetchTotalCash(); }}
