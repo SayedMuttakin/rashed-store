@@ -22,7 +22,7 @@ const CategoryCard = ({ image, label, onClick, fallbackIcon: Icon, color }) => {
                         <img
                             src={image}
                             alt={label}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain rounded-xl"
                             onError={() => setImgError(true)}
                         />
                     ) : (

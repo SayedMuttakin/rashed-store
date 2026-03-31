@@ -17,7 +17,15 @@ const DuePage = ({ onBack }) => {
     // Form states
     const [newName, setNewName] = useState('');
     const [newAmount, setNewAmount] = useState('');
+    const [newDescription, setNewDescription] = useState('');
     const [updateAmount, setUpdateAmount] = useState('');
+    const [updateDescription, setUpdateDescription] = useState('');
+    const [transactionType, setTransactionType] = useState('plus'); // 'plus' for Dilam, 'minus' for Pelam
+
+    // History Modal state
+    const [historyItem, setHistoryItem] = useState(null);
+    const [historyPage, setHistoryPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Confirm Modal state
     const [confirmModal, setConfirmModal] = useState({
@@ -26,6 +34,18 @@ const DuePage = ({ onBack }) => {
         title: '',
         message: ''
     });
+
+    useEffect(() => {
+        if (historyItem) setHistoryPage(1);
+    }, [historyItem]);
+
+    useEffect(() => {
+        if (!showEditModal) {
+            setUpdateAmount('');
+            setUpdateDescription('');
+            setTransactionType('plus');
+        }
+    }, [showEditModal]);
 
     useEffect(() => {
         fetchDues();
@@ -48,31 +68,21 @@ const DuePage = ({ onBack }) => {
         }
     };
 
-    const totalDue = Array.isArray(dues)
-        ? dues.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
-        : 0;
-
-    if (!Array.isArray(dues) && dues !== undefined) {
-        console.error('Dues is not an array:', dues);
-    }
-
-    const filteredDues = Array.isArray(dues) ? dues.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) : [];
-
     const handleAddDue = async () => {
         if (!newName || !newAmount) return;
         try {
             setIsSubmitting(true);
             const { data } = await API.post('/dues', {
                 name: newName,
-                amount: parseFloat(newAmount)
+                amount: parseFloat(newAmount),
+                description: newDescription
             });
             if (Array.isArray(data)) {
                 setDues(data);
             }
             setNewName('');
             setNewAmount('');
+            setNewDescription('');
             setShowAddModal(false);
             toast.success('বকেয়া চমৎকারভাবে যোগ করা হয়েছে।');
         } catch (error) {
@@ -84,16 +94,27 @@ const DuePage = ({ onBack }) => {
     };
 
     const handleUpdateDue = async (id) => {
-        const amount = parseFloat(updateAmount);
+        let amount = parseFloat(updateAmount);
         if (isNaN(amount)) return;
+
+        // If 'Pelam' (Received) is selected, make the amount negative to subtract from total due
+        if (transactionType === 'minus') {
+            amount = -Math.abs(amount);
+        } else {
+            amount = Math.abs(amount);
+        }
 
         try {
             setIsSubmitting(true);
-            const { data } = await API.put(`/dues/${id}`, { amount });
+            const { data } = await API.put(`/dues/${id}`, { 
+                amount,
+                description: updateDescription
+            });
             if (Array.isArray(data)) {
                 setDues(data);
             }
             setUpdateAmount('');
+            setUpdateDescription('');
             setShowEditModal(null);
             toast.success('বকেয়া আপডেট করা হয়েছে।');
         } catch (error) {
@@ -103,6 +124,14 @@ const DuePage = ({ onBack }) => {
             setIsSubmitting(false);
         }
     };
+
+    const totalDue = Array.isArray(dues)
+        ? dues.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+        : 0;
+
+    const filteredDues = Array.isArray(dues) ? dues.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) : [];
 
     const handleDeleteDue = async (id) => {
         setConfirmModal({
@@ -232,6 +261,13 @@ const DuePage = ({ onBack }) => {
 
                                     <div className="flex gap-3 pt-4 border-t border-gray-50 dark:border-gray-800/50">
                                         <button
+                                            onClick={() => setHistoryItem(item)}
+                                            className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all active:scale-95"
+                                            title="হিস্টোরি দেখুন"
+                                        >
+                                            <FiClock size={16} />
+                                        </button>
+                                        <button
                                             onClick={() => setShowEditModal(item)}
                                             className="flex-1 py-3 px-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center justify-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all active:scale-[0.98]"
                                         >
@@ -293,6 +329,16 @@ const DuePage = ({ onBack }) => {
                                         className="w-full px-5 py-4 rounded-2xl bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-500 text-gray-900 dark:text-white font-mono text-xl font-bold transition-all"
                                     />
                                 </div>
+                                <div className="text-left">
+                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider pl-1">বিবরণ (ঐচ্ছিক)</label>
+                                    <input
+                                        type="text"
+                                        value={newDescription}
+                                        onChange={(e) => setNewDescription(e.target.value)}
+                                        placeholder="উদা: মাল ক্রয় বা নগদ বাকি"
+                                        className="w-full px-5 py-4 rounded-2xl bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-500 text-gray-900 dark:text-white font-medium transition-all"
+                                    />
+                                </div>
                                 <div className="flex gap-4 pt-4">
                                     <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200">বাতিল</button>
                                     <button
@@ -333,15 +379,62 @@ const DuePage = ({ onBack }) => {
                                     <span className="text-xl font-bold text-gray-700 dark:text-gray-300">৳ {showEditModal.amount.toLocaleString()}</span>
                                 </div>
 
+                                <div className="flex p-1.5 bg-gray-100 dark:bg-black/40 rounded-2xl gap-1.5">
+                                    <button 
+                                        onClick={() => setTransactionType('plus')}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-all text-sm ${
+                                            transactionType === 'plus' 
+                                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20 scale-[1.02]' 
+                                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className={`w-1.5 h-1.5 rounded-full ${transactionType === 'plus' ? 'bg-white animate-pulse' : 'bg-amber-500'}`} />
+                                        দিয়েছি
+                                    </button>
+                                    <button 
+                                        onClick={() => setTransactionType('minus')}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-all text-sm ${
+                                            transactionType === 'minus' 
+                                            ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]' 
+                                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className={`w-1.5 h-1.5 rounded-full ${transactionType === 'minus' ? 'bg-white animate-pulse' : 'bg-green-500'}`} />
+                                        পেয়েছি
+                                    </button>
+                                </div>
+
                                 <div className="text-left">
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider text-center">টাকার পরিমাণ (যোগ করতে প্লাস, কমাতে মাইনাস)</label>
+                                    <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider text-center">
+                                        {transactionType === 'plus' ? 'কত টাকা দিলেন?' : 'কত টাকা পেলেন?'}
+                                    </label>
+                                    <div className="relative">
+                                        <span className={`absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-bold ${transactionType === 'plus' ? 'text-amber-500' : 'text-green-500'}`}>
+                                            {transactionType === 'plus' ? '+' : '-'}
+                                        </span>
+                                        <input
+                                            type="number"
+                                            value={updateAmount}
+                                            onChange={(e) => setUpdateAmount(e.target.value)}
+                                            placeholder="0"
+                                            className={`w-full pl-12 pr-5 py-5 rounded-2xl bg-gray-50 dark:bg-black/30 border-2 outline-none text-gray-900 dark:text-white font-mono text-3xl font-bold transition-all ${
+                                                transactionType === 'plus' 
+                                                ? 'border-amber-100 dark:border-amber-900/30 focus:border-amber-500' 
+                                                : 'border-green-100 dark:border-green-900/30 focus:border-green-500'
+                                            }`}
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="text-left">
+                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider pl-1">লেনদেনের বিবরণ</label>
                                     <input
-                                        type="number"
-                                        value={updateAmount}
-                                        onChange={(e) => setUpdateAmount(e.target.value)}
-                                        placeholder="± 0"
-                                        className="w-full px-5 py-4 rounded-2xl bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-500 text-gray-900 dark:text-white font-mono text-3xl text-center font-bold transition-all"
-                                        autoFocus
+                                        type="text"
+                                        value={updateDescription}
+                                        onChange={(e) => setUpdateDescription(e.target.value)}
+                                        placeholder="উদা: কিস্তিতে পরিশোধ বা অতিরিক্ত ক্রয়"
+                                        className="w-full px-5 py-4 rounded-2xl bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-500 text-gray-900 dark:text-white font-medium transition-all"
                                     />
                                 </div>
 
@@ -355,6 +448,122 @@ const DuePage = ({ onBack }) => {
                                         {isSubmitting ? <FiLoader className="animate-spin" /> : 'আপডেট করুন'}
                                     </button>
                                 </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* History Modal */}
+            <AnimatePresence>
+                {historyItem && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => setHistoryItem(null)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="bg-white dark:bg-[#1f1f23] w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl relative z-10 border border-gray-100 dark:border-gray-800 flex flex-col max-h-[85vh]"
+                        >
+                            {/* History Header */}
+                            <div className="p-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-xl font-bold tracking-tight">লেনদেনের ইতিহাস</h3>
+                                    <p className="text-xs text-amber-100 font-medium">{historyItem.name}</p>
+                                </div>
+                                <button 
+                                    onClick={() => setHistoryItem(null)}
+                                    className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all text-white"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* History List */}
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 relative">
+                                {(!historyItem.history || historyItem.history.length === 0) ? (
+                                    <div className="py-12 text-center text-gray-400 italic">কোন ইতিহাস পাওয়া যায়নি</div>
+                                ) : (
+                                    (() => {
+                                        const reversedHistory = [...historyItem.history].reverse();
+                                        const totalPages = Math.ceil(reversedHistory.length / itemsPerPage);
+                                        const startIndex = (historyPage - 1) * itemsPerPage;
+                                        const visibleItems = reversedHistory.slice(startIndex, startIndex + itemsPerPage);
+
+                                        return (
+                                            <>
+                                                {visibleItems.map((record, idx) => (
+                                                    <div key={idx} className="flex gap-4 items-start relative">
+                                                        {idx !== visibleItems.length - 1 && (
+                                                            <div className="absolute left-5 top-10 bottom-[-20px] w-0.5 bg-gray-100 dark:bg-gray-800"></div>
+                                                        )}
+                                                        
+                                                        <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center border-2 border-white dark:border-gray-900 z-10 ${
+                                                            record.type === 'plus' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 
+                                                            record.type === 'minus' ? 'bg-green-100 dark:bg-green-900/30 text-green-600' :
+                                                            'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                                        }`}>
+                                                            {record.type === 'plus' ? <FiPlus size={16} /> : 
+                                                            record.type === 'minus' ? <FiDollarSign size={16} /> : 
+                                                            <FiUser size={16} />}
+                                                        </div>
+
+                                                        <div className="flex-1 bg-gray-50 dark:bg-black/20 rounded-2xl p-4 border border-gray-100 dark:border-gray-800">
+                                                            <div className="flex justify-between items-start mb-1">
+                                                                <span className={`text-sm font-bold ${
+                                                                    record.type === 'plus' ? 'text-amber-600' : 
+                                                                    record.type === 'minus' ? 'text-green-600' : 'text-gray-500'
+                                                                }`}>
+                                                                    {record.type === 'initial' ? 'শুরু' : 
+                                                                    record.type === 'plus' ? 'দিয়েছি' : 'পেয়েছি'}
+                                                                </span>
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{record.date}</span>
+                                                            </div>
+                                                            <div className="text-lg font-black text-gray-800 dark:text-white mb-1">
+                                                                ৳ {record.amount.toLocaleString()}
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                                                                {record.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+
+                                                {/* Pagination Controls */}
+                                                {totalPages > 1 && (
+                                                    <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800">
+                                                        <button 
+                                                            onClick={() => setHistoryPage(p => Math.max(1, p - 1))}
+                                                            disabled={historyPage === 1}
+                                                            className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200"
+                                                        >
+                                                            আগের পেজ
+                                                        </button>
+                                                        <span className="text-xs font-bold text-gray-400">
+                                                            Page {historyPage} of {totalPages}
+                                                        </span>
+                                                        <button 
+                                                            onClick={() => setHistoryPage(p => Math.min(totalPages, p + 1))}
+                                                            disabled={historyPage === totalPages}
+                                                            className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200"
+                                                        >
+                                                            পরের পেজ
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        );
+                                    })()
+                                )}
+                            </div>
+                            
+                            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">বর্তমান মোট</span>
+                                <span className="text-xl font-black text-amber-500">৳ {historyItem.amount.toLocaleString()}</span>
                             </div>
                         </motion.div>
                     </div>

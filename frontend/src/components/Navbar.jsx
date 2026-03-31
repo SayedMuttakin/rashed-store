@@ -160,7 +160,7 @@ const Navbar = ({ onLogout }) => {
                             <img
                                 src={settings.headerLogoUrl}
                                 alt="Logo"
-                                className={`w-full h-full object-cover transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
+                                className={`w-full h-full object-cover rounded-full transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
                             />
                             {isUploading && (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -173,7 +173,7 @@ const Navbar = ({ onLogout }) => {
                         </div>
                         <div className="flex items-center gap-0.5 cursor-pointer group">
                             <span className="text-white font-bold text-lg tracking-tight group-hover:text-pink-400 transition-colors">
-                                {settings.appName.split(' ')[0]}<span className="text-pink-500">{settings.appName.split(' ')[1] || ''}</span>
+                                {(settings?.appName || 'Rashed Store').split(' ')[0]}<span className="text-pink-500">{(settings?.appName || 'Rashed Store').split(' ').slice(1).join(' ')}</span>
                             </span>
                             <FiChevronRight size={14} className="text-white/60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
@@ -228,7 +228,7 @@ const Navbar = ({ onLogout }) => {
                                 >
                                     <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/5 p-1">
                                         {cat.image ? (
-                                            <img src={cat.image} alt={cat.label} className="w-full h-full object-contain" />
+                                            <img src={cat.image} alt={cat.label} className="w-full h-full object-contain rounded-lg" />
                                         ) : (
                                             <cat.fallbackIcon className="text-white/60" size={16} />
                                         )}

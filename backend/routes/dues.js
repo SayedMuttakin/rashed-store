@@ -19,20 +19,25 @@ router.get('/', protect, async (req, res, next) => {
 });
 
 // @desc    Add new due item
-// @route   POST /api/dues
-// @access  Private
 router.post('/', protect, async (req, res, next) => {
-    const { name, amount } = req.body;
+    const { name, amount, description } = req.body;
     try {
         let due = await Due.findOne({ userId: req.user._id });
         if (!due) {
             due = new Due({ userId: req.user._id, items: [] });
         }
 
+        const dateStr = new Date().toISOString().split('T')[0];
         const newItem = {
             name,
             amount: parseFloat(amount),
-            lastUpdate: new Date().toISOString().split('T')[0]
+            lastUpdate: dateStr,
+            history: [{
+                type: 'initial',
+                amount: parseFloat(amount),
+                description: description || 'প্রাথমিক এন্ট্রি',
+                date: dateStr
+            }]
         };
 
         due.items.push(newItem);
@@ -44,10 +49,8 @@ router.post('/', protect, async (req, res, next) => {
 });
 
 // @desc    Update due item amount
-// @route   PUT /api/dues/:id
-// @access  Private
 router.put('/:id', protect, async (req, res, next) => {
-    const { amount } = req.body;
+    const { amount, description } = req.body;
     try {
         const due = await Due.findOne({ userId: req.user._id });
         if (!due) return res.status(404).json({ message: 'তথ্য পাওয়া যায়নি' });
@@ -55,8 +58,20 @@ router.put('/:id', protect, async (req, res, next) => {
         const item = due.items.id(req.params.id);
         if (!item) return res.status(404).json({ message: 'ব্যক্তি খুঁজে পাওয়া যায়নি' });
 
-        item.amount = (item.amount || 0) + parseFloat(amount);
-        item.lastUpdate = new Date().toISOString().split('T')[0];
+        const delta = parseFloat(amount);
+        const type = delta > 0 ? 'plus' : 'minus';
+        const dateStr = new Date().toISOString().split('T')[0];
+
+        item.amount = (item.amount || 0) + delta;
+        item.lastUpdate = dateStr;
+        
+        // Add to history
+        item.history.push({
+            type,
+            amount: Math.abs(delta),
+            description: description || (type === 'plus' ? 'বকেয়া যোগ করা হয়েছে' : 'বকেয়া পরিশোধ পাওয়া গেছে'),
+            date: dateStr
+        });
 
         await due.save();
         res.json(due.items);
