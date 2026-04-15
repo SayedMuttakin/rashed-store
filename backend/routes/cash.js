@@ -25,13 +25,14 @@ router.get('/summary', protect, async (req, res, next) => {
             ? dueDoc.items.reduce((sum, item) => sum + (item.amount || 0), 0)
             : 0;
 
-        // 4. Get Sum of all Deposits
+        // 4. Get Sum of all Deposits (Separate, NOT included in total cash)
         const depositDoc = await Deposit.findOne({ userId: req.user._id });
         const totalDeposits = depositDoc && Array.isArray(depositDoc.items)
             ? depositDoc.items.reduce((sum, item) => sum + (item.amount || 0), 0)
             : 0;
 
-        const grandTotal = currentCash + totalAccountsBalance + totalDues + totalDeposits;
+        // Note: Deposits are NOT included in grandTotal - they are separate savings
+        const grandTotal = currentCash + totalAccountsBalance + totalDues;
 
         res.json({
             currentBalance: grandTotal,
