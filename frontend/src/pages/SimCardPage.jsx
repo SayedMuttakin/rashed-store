@@ -159,7 +159,7 @@ const SimCardPage = ({ onBack }) => {
                         </p>
                         <h2 className="text-3xl sm:text-5xl font-bold tracking-tight my-1 sm:my-2">
                             <span className="text-xl sm:text-3xl opacity-80 mr-1">৳</span>
-                            {totalBalance.toLocaleString()}
+                            {(totalBalance || 0).toLocaleString()}
                         </h2>
                     </div>
                 </motion.div>
@@ -209,7 +209,7 @@ const SimCardPage = ({ onBack }) => {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-lg sm:text-xl font-black text-purple-600 dark:text-purple-400">৳ {item.balance.toLocaleString()}</p>
+                                                <p className="text-lg sm:text-xl font-black text-purple-600 dark:text-purple-400">৳ {(item.balance || 0).toLocaleString()}</p>
                                                 <p className="text-[8px] sm:text-[9px] text-gray-400 flex items-center justify-end gap-0.5 mt-0.5 sm:mt-1 font-bold">
                                                     <FiClock size={10} /> {new Date(item.updatedAt).toLocaleDateString()}
                                                 </p>
@@ -340,7 +340,7 @@ const SimCardPage = ({ onBack }) => {
                             <div className="space-y-6">
                                 <div className="p-4 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-gray-800 flex justify-between items-center">
                                     <span className="text-[10px] text-gray-400 uppercase font-bold text-left">বর্তমান ব্যালেন্স</span>
-                                    <span className="text-xl font-bold text-gray-700 dark:text-gray-300">৳ {showUpdateModal.amount.toLocaleString()}</span>
+                                    <span className="text-xl font-bold text-gray-700 dark:text-gray-300">৳ {(showUpdateModal.balance || 0).toLocaleString()}</span>
                                 </div>
 
                                 <div className="text-left text-center">
